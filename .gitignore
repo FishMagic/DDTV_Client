@@ -1,0 +1,9 @@
+.gradle
+local.properties
+.idea
+/build
+/captures
+/desktop/build/
+/common/build/
+/android/build/
+/android/release/*

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DDTV客户端 - 基于DDTV WEB API</string>
+    <string name="title_activity_main">DDTV客户端</string>
+</resources>
