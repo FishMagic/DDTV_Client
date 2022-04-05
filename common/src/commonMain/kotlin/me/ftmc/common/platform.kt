@@ -1,3 +1,3 @@
-package me.laevatein.common
+package me.ftmc.common
 
 expect fun getPlatformName(): String

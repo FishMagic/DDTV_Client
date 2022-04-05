@@ -1,6 +1,6 @@
-package me.laevatein.android
+package me.ftmc.android
 
-import me.laevatein.common.App
+import me.ftmc.common.App
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
