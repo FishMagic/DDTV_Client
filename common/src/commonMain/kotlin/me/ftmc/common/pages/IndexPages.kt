@@ -226,8 +226,12 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
         Text(text = "Bilibili 登录", style = MaterialTheme.typography.headlineSmall)
         Row(verticalAlignment = Alignment.CenterVertically) {
           Text(text = "登录状态：${if (loginStatus) "已登录" else "未登录"}", style = MaterialTheme.typography.bodySmall)
-          TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
-            Text(text = "登录二维码", style = MaterialTheme.typography.bodySmall)
+          AnimatedVisibility(
+            !loginStatus, enter = fadeIn(), exit = fadeOut()
+          ) {
+            TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
+              Text(text = "登录二维码", style = MaterialTheme.typography.bodySmall)
+            }
           }
         }
         AnimatedVisibility(
