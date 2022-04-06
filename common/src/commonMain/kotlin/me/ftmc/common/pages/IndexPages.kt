@@ -57,7 +57,7 @@ import me.ftmc.common.screenTypeChangeWidth
 fun IndexPage() {
   var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECT) }
   var apiUsable by remember { mutableStateOf(true) }
-  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
     Column(
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
         Modifier.width(350.dp).padding(start = 16.dp)
@@ -75,41 +75,24 @@ fun IndexPage() {
       if (connectSettingExpanded) {
         Spacer(Modifier.height(8.dp))
       }
-      AnimatedVisibility(
-        connectSettingExpanded,
-        enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
-        exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
-      ) {
-        ConnectSettingsCard {
-          apiUsable = true
-          connectSettingExpanded = false
-        }
+      ConnectSettingsCard(connectSettingExpanded) {
+        apiUsable = true
+        connectSettingExpanded = false
       }
       if (currentScreenWidth < screenTypeChangeWidth) {
         if (connectStatus == ConnectStatus.CONNECT) {
           Spacer(Modifier.height(8.dp))
         }
-        AnimatedVisibility(
-          connectStatus == ConnectStatus.CONNECT,
-          enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
-          exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
-        ) {
-          LoginInfoCard()
-        }
+        LoginInfoCard(connectStatus)
       }
       if (currentScreenWidth < screenTypeChangeWidth) {
-        Spacer(Modifier.height(90.dp))}
+        Spacer(Modifier.height(90.dp))
+      }
     }
     if (currentScreenWidth >= screenTypeChangeWidth) {
       Spacer(modifier = Modifier.width(8.dp))
       Column(modifier = Modifier.width(350.dp).padding(end = 16.dp)) {
-        AnimatedVisibility(
-          connectStatus == ConnectStatus.CONNECT,
-          enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
-          exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
-        ) {
-          LoginInfoCard()
-        }
+        LoginInfoCard(connectStatus)
       }
     }
   }
@@ -183,32 +166,38 @@ private fun ConnectStatusCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ConnectSettingsCard(settingSaveUpdater: () -> Unit) {
-  OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-    var tempURL by remember { mutableStateOf(url) }
-    var tempAccessKeyId by remember { mutableStateOf(accessKeyId) }
-    var tempAccessKeySecret by remember { mutableStateOf(accessKeySecret) }
-    Column(modifier = Modifier.padding(16.dp)) {
-      Text(text = "连接设置", style = MaterialTheme.typography.headlineSmall)
-      Spacer(Modifier.height(16.dp))
-      OutlinedTextField(value = tempURL,
-        onValueChange = { tempURL = it },
-        placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https://") },
-        label = { androidx.compose.material.Text(text = "服务器地址") })
-      OutlinedTextField(value = tempAccessKeyId,
-        onValueChange = { tempAccessKeyId = it },
-        label = { androidx.compose.material.Text(text = "AccessKeyId") })
-      OutlinedTextField(value = tempAccessKeySecret,
-        onValueChange = { tempAccessKeySecret = it },
-        label = { androidx.compose.material.Text(text = "AccessKeySecret") })
-      TextButton(onClick = {
-        url = tempURL
-        accessKeyId = tempAccessKeyId
-        accessKeySecret = tempAccessKeySecret
-        saveConfig()
-        settingSaveUpdater()
-      }) {
-        Text(text = "保存", style = MaterialTheme.typography.bodySmall)
+private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpdater: () -> Unit) {
+  AnimatedVisibility(
+    connectSettingExpanded,
+    enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+    exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+  ) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      var tempURL by remember { mutableStateOf(url) }
+      var tempAccessKeyId by remember { mutableStateOf(accessKeyId) }
+      var tempAccessKeySecret by remember { mutableStateOf(accessKeySecret) }
+      Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "连接设置", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(value = tempURL,
+          onValueChange = { tempURL = it },
+          placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https://") },
+          label = { androidx.compose.material.Text(text = "服务器地址") })
+        OutlinedTextField(value = tempAccessKeyId,
+          onValueChange = { tempAccessKeyId = it },
+          label = { androidx.compose.material.Text(text = "AccessKeyId") })
+        OutlinedTextField(value = tempAccessKeySecret,
+          onValueChange = { tempAccessKeySecret = it },
+          label = { androidx.compose.material.Text(text = "AccessKeySecret") })
+        TextButton(onClick = {
+          url = tempURL
+          accessKeyId = tempAccessKeyId
+          accessKeySecret = tempAccessKeySecret
+          saveConfig()
+          settingSaveUpdater()
+        }) {
+          Text(text = "保存", style = MaterialTheme.typography.bodySmall)
+        }
       }
     }
   }
@@ -216,52 +205,57 @@ private fun ConnectSettingsCard(settingSaveUpdater: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LoginInfoCard() {
-  OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-    var loginStatus by remember { mutableStateOf(false) }
-    var qrCodeExpanded by remember { mutableStateOf(false) }
-    LaunchedEffect(true) {
-      loginStatusFlow.collect {
-        loginStatus = it
-        if (!loginStatus) {
-          qrCodeExpanded = true
+private fun LoginInfoCard(connectStatus: ConnectStatus) {
+  AnimatedVisibility(
+    connectStatus == ConnectStatus.CONNECT,
+    enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+    exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+  ) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      var loginStatus by remember { mutableStateOf(false) }
+      var qrCodeExpanded by remember { mutableStateOf(false) }
+      LaunchedEffect(true) {
+        loginStatusFlow.collect {
+          loginStatus = it
+          if (!loginStatus) {
+            qrCodeExpanded = true
+          }
         }
       }
-    }
-    Column(modifier = Modifier.padding(16.dp)) {
-      Text(text = "Bilibili 登录", style = MaterialTheme.typography.headlineSmall)
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text = "登录状态：${if (loginStatus) "已登录" else "未登录"}", style = MaterialTheme.typography.bodySmall)
-        TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
-          Text(text = "登录二维码", style = MaterialTheme.typography.bodySmall)
+      Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "Bilibili 登录", style = MaterialTheme.typography.headlineSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Text(text = "登录状态：${if (loginStatus) "已登录" else "未登录"}", style = MaterialTheme.typography.bodySmall)
+          TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
+            Text(text = "登录二维码", style = MaterialTheme.typography.bodySmall)
+          }
         }
-      }
-      AnimatedVisibility(
-        qrCodeExpanded,
-        enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
-        exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
-      ) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-
-          var imageLoading by remember { mutableStateOf(true) }
-          var imageBitmap: ImageBitmap? by remember { mutableStateOf(null) }
-          LaunchedEffect(true) {
-            while (true) {
-              imageLoading = true
-              try{
-                val imageByteArray: ByteArray = httpClient.get(urlString = getRequestURL("loginqr"))
-                imageBitmap = byteArrayToImageBitmap(imageByteArray)
-                imageLoading = false
-                delay(30000L)
-              } catch (e: Exception) {
-                delay(500L)
+        AnimatedVisibility(
+          qrCodeExpanded,
+          enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+          exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+        ) {
+          Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            var imageLoading by remember { mutableStateOf(true) }
+            var imageBitmap: ImageBitmap? by remember { mutableStateOf(null) }
+            LaunchedEffect(true) {
+              while (true) {
+                imageLoading = true
+                try {
+                  val imageByteArray: ByteArray = httpClient.get(urlString = getRequestURL("loginqr"))
+                  imageBitmap = byteArrayToImageBitmap(imageByteArray)
+                  imageLoading = false
+                  delay(30000L)
+                } catch (e: Exception) {
+                  delay(500L)
+                }
               }
             }
-          }
-          if (imageLoading || imageBitmap == null) {
-            CircularProgressIndicator(modifier = Modifier.size(64.dp))
-          } else {
-            Image(bitmap = imageBitmap!!, contentDescription = null, modifier = Modifier.size(64.dp))
+            if (imageLoading || imageBitmap == null) {
+              CircularProgressIndicator(modifier = Modifier.size(256.dp))
+            } else {
+              Image(bitmap = imageBitmap!!, contentDescription = null, modifier = Modifier.size(256.dp))
+            }
           }
         }
       }
