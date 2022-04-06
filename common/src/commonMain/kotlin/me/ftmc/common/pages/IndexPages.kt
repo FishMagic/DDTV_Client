@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedTextField
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.ktor.client.request.*
 import kotlinx.coroutines.delay
@@ -182,6 +184,7 @@ private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpda
         OutlinedTextField(value = tempURL,
           onValueChange = { tempURL = it },
           placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https://") },
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
           label = { androidx.compose.material.Text(text = "服务器地址") })
         OutlinedTextField(value = tempAccessKeyId,
           onValueChange = { tempAccessKeyId = it },
