@@ -4,7 +4,7 @@ plugins {
     kotlin("android")
 }
 
-group = "me.laevatein"
+group = "me.ftmc"
 version = "1.0"
 
 repositories {
@@ -13,6 +13,8 @@ repositories {
 dependencies {
     implementation(project(":common"))
     implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.window:window:1.0.0")
+    implementation("androidx.window:window-java:1.0.0")
 }
 
 android {

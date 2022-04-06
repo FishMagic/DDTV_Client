@@ -1,18 +1,34 @@
 package me.ftmc.android
 
-import me.ftmc.common.App
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.MaterialTheme
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.unit.dp
+import androidx.window.layout.WindowMetricsCalculator
+import me.ftmc.android.ui.theme.AppTheme
+import me.ftmc.common.App
+import me.ftmc.common.backend.darkMode
+import me.ftmc.common.saveWindowsSizeType
+import me.ftmc.common.sharedRef
 
 class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    getWindowWidth()
+    sharedRef = this.getSharedPreferences("Client_Config",Context.MODE_PRIVATE)
     setContent {
-      MaterialTheme {
+      AppTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {
         App()
       }
     }
+  }
+
+  private fun getWindowWidth() {
+    val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+
+    val widthDp = metrics.bounds.width() / resources.displayMetrics.density
+    saveWindowsSizeType(widthDp.dp)
   }
 }

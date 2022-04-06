@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="me.laevatein.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="me.ftmc.android">
     <application
             android:allowBackup="false"
             android:supportsRtl="true"
@@ -18,4 +18,5 @@
             </intent-filter>
         </activity>
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

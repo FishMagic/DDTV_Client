@@ -7,3 +7,4 @@ local.properties
 /common/build/
 /android/build/
 /android/release/*
+config.json
