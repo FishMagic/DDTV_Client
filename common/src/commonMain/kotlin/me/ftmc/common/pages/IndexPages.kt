@@ -42,6 +42,7 @@ import me.ftmc.common.ConnectStatus
 import me.ftmc.common.backend.APIError
 import me.ftmc.common.backend.accessKeyId
 import me.ftmc.common.backend.accessKeySecret
+import me.ftmc.common.backend.getRequestURL
 import me.ftmc.common.backend.httpClient
 import me.ftmc.common.backend.loginStatusFlow
 import me.ftmc.common.backend.systemInfoFlow
@@ -245,10 +246,14 @@ private fun LoginInfoCard() {
           LaunchedEffect(true) {
             while (true) {
               imageLoading = true
-              val imageByteArray: ByteArray = httpClient.get(urlString = "https://ddtv.pro/DDTV.png")
-              imageBitmap = byteArrayToImageBitmap(imageByteArray)
-              imageLoading = false
-              delay(30000L)
+              try{
+                val imageByteArray: ByteArray = httpClient.get(urlString = getRequestURL("loginqr"))
+                imageBitmap = byteArrayToImageBitmap(imageByteArray)
+                imageLoading = false
+                delay(30000L)
+              } catch (e: Exception) {
+                delay(500L)
+              }
             }
           }
           if (imageLoading || imageBitmap == null) {
