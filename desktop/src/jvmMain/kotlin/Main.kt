@@ -1,4 +1,5 @@
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -13,7 +14,9 @@ fun main() = application {
   Window(
     onCloseRequest = ::exitApplication,
     state = WindowState(size = DpSize(screenTypeChangeWidth, 650.dp)),
-    resizable = false
+    resizable = false,
+    title = "DDTV 客户端",
+    icon = painterResource("app_icon.png")
   ) {
     AppTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {
       App()
