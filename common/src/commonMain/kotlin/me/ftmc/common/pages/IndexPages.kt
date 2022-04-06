@@ -139,13 +139,13 @@ private fun ConnectStatusCard(
       Row(verticalAlignment = Alignment.CenterVertically) {
         Text("连接状态：${connectStatus.statusString}", style = MaterialTheme.typography.bodySmall)
         TextButton(onClick = { connectSettingExpandedUpdater(!connectSettingExpanded) }) {
-          Text(text = "设置", style = MaterialTheme.typography.bodySmall)
+          Text(text = "设置")
         }
         AnimatedVisibility(
           connectStatus != ConnectStatus.CONNECT, enter = fadeIn(), exit = fadeOut()
         ) {
           TextButton(onClick = { apiUsableUpdater(true) }) {
-            Text(text = "重试", style = MaterialTheme.typography.bodySmall)
+            Text(text = "重试")
           }
         }
       }
@@ -196,7 +196,7 @@ private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpda
           saveConfig()
           settingSaveUpdater()
         }) {
-          Text(text = "保存", style = MaterialTheme.typography.bodySmall)
+          Text(text = "保存")
         }
       }
     }
@@ -230,7 +230,7 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
             !loginStatus, enter = fadeIn(), exit = fadeOut()
           ) {
             TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
-              Text(text = "登录二维码", style = MaterialTheme.typography.bodySmall)
+              Text(text = "登录二维码")
             }
           }
         }
