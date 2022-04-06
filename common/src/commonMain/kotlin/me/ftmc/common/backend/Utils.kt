@@ -150,7 +150,7 @@ data class RecRecordingInfoLiteData(
   val Title: String,
   val Token: String,
   val TotalDownloadCount: Long,
-  val Uid: Int
+  val Uid: Long
 )
 
 @Serializable
@@ -228,7 +228,7 @@ data class RoomAllInfoData(
   val tag_name: String?,
   val tags: String?,
   val title: String?,
-  val uid: Int?,
+  val uid: Long?,
   val uname: String?,
   val url: String?
 )

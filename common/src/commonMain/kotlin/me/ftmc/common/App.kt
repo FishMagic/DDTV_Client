@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import me.ftmc.common.pages.IndexPage
 import me.ftmc.common.pages.StatusPage
+import me.ftmc.common.pages.addFakeRoom
 
 val screenTypeChangeWidth = 800.dp
 var currentScreenWidth = screenTypeChangeWidth
@@ -76,7 +77,7 @@ fun App() {
     AnimatedVisibility(tabSelected == TabList.Status,
       enter = slideIn { IntOffset(it.width / 2, it.height / 2) } + fadeIn(),
       exit = slideOut { IntOffset(it.width / 2, it.height / 2) } + fadeOut()) {
-      FloatingActionButton(onClick = {}) {
+      FloatingActionButton(onClick = { addFakeRoom() }) {
         Icon(Icons.Filled.Add, "添加房间")
       }
     }
