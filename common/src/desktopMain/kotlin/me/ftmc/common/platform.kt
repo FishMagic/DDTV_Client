@@ -48,9 +48,12 @@ actual fun loadConfig() {
     file.createNewFile()
   }
   val fis = FileInputStream(file)
-  val configClass = Json.decodeFromStream<ConfigClass>(fis)
-  url = configClass.url
-  accessKeySecret = configClass.accessKeySecret
-  accessKeyId = configClass.accessKeyId
-  darkMode = configClass.darkMode
+  try {
+    val configClass = Json.decodeFromStream<ConfigClass>(fis)
+    url = configClass.url
+    accessKeySecret = configClass.accessKeySecret
+    accessKeyId = configClass.accessKeyId
+    darkMode = configClass.darkMode
+  } catch (_: Exception) {
+  }
 }
