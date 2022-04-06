@@ -56,55 +56,57 @@ import me.ftmc.common.screenTypeChangeWidth
 fun IndexPage() {
   var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECT) }
   var apiUsable by remember { mutableStateOf(true) }
-  Column(
-    modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
-      Modifier.width(300.dp)
-    } else {
-      Modifier.fillMaxWidth()
-    }.padding(8.dp).verticalScroll(rememberScrollState())
-  ) {
-    var connectSettingExpanded by remember { mutableStateOf(false) }
-    ConnectStatusCard(apiUsable,
-      connectStatus,
-      connectSettingExpanded,
-      { apiUsable = it },
-      { connectStatus = it },
-      { connectSettingExpanded = it })
-    if (connectSettingExpanded) {
-      Spacer(Modifier.height(8.dp))
-    }
-    AnimatedVisibility(
-      connectSettingExpanded,
-      enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
-      exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+    Column(
+      modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
+        Modifier.width(300.dp)
+      } else {
+        Modifier.fillMaxWidth()
+      }.padding(8.dp).verticalScroll(rememberScrollState())
     ) {
-      ConnectSettingsCard {
-        apiUsable = true
-        connectSettingExpanded = false
-      }
-    }
-    if (currentScreenWidth < screenTypeChangeWidth) {
-      if (connectStatus == ConnectStatus.CONNECT) {
+      var connectSettingExpanded by remember { mutableStateOf(false) }
+      ConnectStatusCard(apiUsable,
+        connectStatus,
+        connectSettingExpanded,
+        { apiUsable = it },
+        { connectStatus = it },
+        { connectSettingExpanded = it })
+      if (connectSettingExpanded) {
         Spacer(Modifier.height(8.dp))
       }
       AnimatedVisibility(
-        connectStatus == ConnectStatus.CONNECT,
+        connectSettingExpanded,
         enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
         exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
       ) {
-        LoginInfoCard()
+        ConnectSettingsCard {
+          apiUsable = true
+          connectSettingExpanded = false
+        }
+      }
+      if (currentScreenWidth < screenTypeChangeWidth) {
+        if (connectStatus == ConnectStatus.CONNECT) {
+          Spacer(Modifier.height(8.dp))
+        }
+        AnimatedVisibility(
+          connectStatus == ConnectStatus.CONNECT,
+          enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+          exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+        ) {
+          LoginInfoCard()
+        }
       }
     }
-  }
-  if (currentScreenWidth >= screenTypeChangeWidth) {
-    Spacer(modifier = Modifier.width(8.dp))
-    Column(modifier = Modifier.width(300.dp).padding(8.dp)) {
-      AnimatedVisibility(
-        connectStatus == ConnectStatus.CONNECT,
-        enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
-        exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
-      ) {
-        LoginInfoCard()
+    if (currentScreenWidth >= screenTypeChangeWidth) {
+      Spacer(modifier = Modifier.width(8.dp))
+      Column(modifier = Modifier.width(300.dp).padding(8.dp)) {
+        AnimatedVisibility(
+          connectStatus == ConnectStatus.CONNECT,
+          enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+          exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+        ) {
+          LoginInfoCard()
+        }
       }
     }
   }
