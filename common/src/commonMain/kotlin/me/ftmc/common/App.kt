@@ -33,8 +33,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import me.ftmc.common.pages.IndexPage
+import me.ftmc.common.pages.StatusPage
 
-val screenTypeChangeWidth = 720.dp
+val screenTypeChangeWidth = 800.dp
 var currentScreenWidth = screenTypeChangeWidth
 
 enum class TabList(val tabName: String, val tabIcon: ImageVector) {
@@ -88,7 +89,10 @@ fun App() {
           }
         }
       }
-      IndexPage()
+      when(tabSelected) {
+        TabList.Index -> IndexPage()
+        TabList.Status -> StatusPage()
+      }
     }
   }
 }
