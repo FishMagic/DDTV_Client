@@ -5,6 +5,10 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 var darkMode: Boolean? = null
 
@@ -21,19 +25,36 @@ val httpClient = HttpClient {
 val getRequestURL: (String) -> String = { cmd -> "$url/api/$cmd" }
 
 fun getSig(cmd: String, nowTime: Long): String {
-  val strToSig =
-    "accesskeyid=${accessKeyId};accesskeysecret=${accessKeySecret};cmd=${cmd.lowercase()};time=${nowTime};"
+  val strToSig = "accesskeyid=${accessKeyId};accesskeysecret=${accessKeySecret};cmd=${cmd.lowercase()};time=${nowTime};"
   return MessageDigestUtils.sha1(strToSig).uppercase()
 }
 
-class APIError(val code: Int) : RuntimeException()
+val formatLongTime: (Long) -> String = { longTime ->
+  val dataTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+  dataTimeFormat.format(LocalDateTime.ofEpochSecond(longTime, 0, ZoneOffset.ofHours(8)))
+}
+
+fun formatDataUnit(byte: Long): String {
+  return if (byte < 1024L) {
+    String.format("%s B", byte.toString())
+  } else if (byte < 1024L * 1024L) {
+    String.format("%.2f KiB", byte.toFloat() / 1024)
+  } else if (byte < 1024L * 1024L * 1024L) {
+    String.format("%.2f MiB", (byte / 1024L).toFloat() / 1024)
+  } else if (byte < 1024L * 1024L * 1024L * 1024L) {
+    String.format("%.2f GiB", (byte / 1024L / 1024L).toFloat() / 1024)
+  } else if (byte < 1024L * 1024L * 1024L * 1024L * 1024L) {
+    String.format("%.2f TiB", (byte / 1024L / 1024L / 1024L).toFloat() / 1024)
+  } else {
+    String.format("%.2f PiB", (byte / 1024L / 1024L / 1024L / 1024L).toFloat() / 1024)
+  }
+}
+
+class APIError(val code: Int, val msg: String = "") : RuntimeException()
 
 @Serializable
 data class SystemInfoResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: SystemInfoData,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: SystemInfoData, val massage: String
 )
 
 @Serializable
@@ -48,8 +69,7 @@ data class SystemInfoData(
 
 @Serializable
 data class SystemInfoDownloadInfo(
-  val Completed_Downloads: Int,
-  val Downloading: Int
+  val Completed_Downloads: Int, val Downloading: Int
 )
 
 @Serializable
@@ -67,51 +87,33 @@ data class SystemInfoOsInfo(
 
 @Serializable
 data class BooleanDataResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: Boolean,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: Boolean, val massage: String
 )
 
 @Serializable
 data class SystemConfigResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: List<SystemConfigData>,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: List<SystemConfigData>, val massage: String
 )
 
 @Serializable
 data class SystemConfigData(
-  val Enabled: Boolean,
-  val Group: Int,
-  val Key: Int,
-  val Value: String
+  val Enabled: Boolean, val Group: Int, val Key: Int, val Value: String
 )
 
 
 @Serializable
 data class StringListDataResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: List<String>,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: List<String>, val massage: String
 )
 
 @Serializable
 data class StringDataResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: String,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: String, val massage: String
 )
 
 @Serializable
 data class FileGetTypeFileListResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: FileGetTypeFileListData,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: FileGetTypeFileListData, val massage: String
 )
 
 @Serializable
@@ -121,16 +123,12 @@ data class FileGetTypeFileListData(
 
 @Serializable
 data class FileGetTypeFileListFileLists(
-  val Type: String,
-  val files: List<String>
+  val Type: String, val files: List<String>
 )
 
 @Serializable
 data class LoginResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: LoginData,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: LoginData, val massage: String
 )
 
 @Serializable
@@ -140,30 +138,24 @@ data class LoginData(
 
 @Serializable
 data class RecRecordingInfoLiteResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: List<RecRecordingInfoLiteData>,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: List<RecRecordingInfoLiteData>, val massage: String
 )
 
 @Serializable
 data class RecRecordingInfoLiteData(
-  val EndTime: Int,
+  val EndTime: Long,
   val FilePath: String,
   val RoomId: String,
-  val StartTime: Int,
+  val StartTime: Long,
   val Title: String,
   val Token: String,
-  val TotalDownloadCount: Int,
+  val TotalDownloadCount: Long,
   val Uid: Int
 )
 
 @Serializable
 data class RecRecordCompleteInfonLiteResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: List<RecRecordCompleteInfonLiteData>,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: List<RecRecordCompleteInfonLiteData>, val massage: String
 )
 
 @Serializable
@@ -180,10 +172,7 @@ data class RecRecordCompleteInfonLiteData(
 
 @Serializable
 data class RoomAllInfoResponse(
-  val cmd: String?,
-  val code: Int?,
-  val `data`: List<RoomAllInfoData>?,
-  val massage: String?
+  val cmd: String?, val code: Int?, val `data`: List<RoomAllInfoData>, val massage: String?
 )
 
 @Serializable
@@ -222,7 +211,7 @@ data class RoomAllInfoData(
   val keyframe: String?,
   val level: Int?,
   val live_status: Int?,
-  val live_time: Int?,
+  val live_time: Long?,
   val lock_till: String?,
   val need_p2p: Int?,
   val online: Int?,

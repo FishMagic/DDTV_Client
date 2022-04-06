@@ -23,15 +23,12 @@ val systemInfoFlow = flow {
       continue
     }
     val nowTime = Instant.now().epochSecond
-    val httpResponse: HttpResponse = httpClient.submitForm(
-      url = getRequestURL(cmd),
-      formParameters = Parameters.build {
-        append("accesskeyid", accessKeyId)
-        append("cmd", cmd)
-        append("time", nowTime.toString())
-        append("sig", getSig(cmd, nowTime))
-      }
-    )
+    val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
+      append("accesskeyid", accessKeyId)
+      append("cmd", cmd)
+      append("time", nowTime.toString())
+      append("sig", getSig(cmd, nowTime))
+    })
     if (httpResponse.status.value == 200) {
       try {
         val responseData: SystemInfoResponse = httpResponse.receive()

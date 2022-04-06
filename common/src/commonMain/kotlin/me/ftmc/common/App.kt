@@ -39,18 +39,21 @@ val screenTypeChangeWidth = 800.dp
 var currentScreenWidth = screenTypeChangeWidth
 
 enum class TabList(val tabName: String, val tabIcon: ImageVector) {
-  Index("首页", Icons.Filled.Home), Status("状态", Icons.Filled.PieChart), Settings(
-    "设置", Icons.Filled.Settings
-  ),
+  Index("首页", Icons.Filled.Home),
+  Status("状态", Icons.Filled.PieChart),
+  Settings("设置", Icons.Filled.Settings),
   About("关于", Icons.Filled.Info)
 }
 
 enum class ConnectStatus(val statusString: String) {
-  CONNECT("连接成功"), DISCONNECT("未连接"), COOKIE_TIMEOUT("登录信息失效"), LOGIN_FAILED("登录验证失败"), SIG_FAILED("密钥错误"), CMD_FAILED("操作失败"),
+  CONNECT("连接成功"),
+  DISCONNECT("未连接"),
+  COOKIE_TIMEOUT("登录信息失效"),
+  LOGIN_FAILED("登录验证失败"),
+  SIG_FAILED("密钥错误"),
+  CMD_FAILED("操作失败"),
   NET_ERROR("网络错误"),
-  UNKNOWN_ERROR(
-    "未知错误"
-  )
+  UNKNOWN_ERROR("未知错误")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +92,7 @@ fun App() {
           }
         }
       }
-      when(tabSelected) {
+      when (tabSelected) {
         TabList.Index -> IndexPage()
         TabList.Status -> StatusPage()
       }
