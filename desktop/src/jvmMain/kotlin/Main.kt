@@ -12,7 +12,7 @@ import me.ftmc.common.screenTypeChangeWidth
 fun main() = application {
   Window(
     onCloseRequest = ::exitApplication,
-    state = WindowState(size = DpSize(screenTypeChangeWidth, 600.dp)),
+    state = WindowState(size = DpSize(screenTypeChangeWidth, 650.dp)),
     resizable = false
   ) {
     AppTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {

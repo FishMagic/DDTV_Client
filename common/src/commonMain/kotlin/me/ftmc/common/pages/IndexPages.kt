@@ -60,10 +60,10 @@ fun IndexPage() {
   Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
     Column(
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
-        Modifier.width(300.dp)
+        Modifier.width(350.dp).padding(start = 16.dp)
       } else {
-        Modifier.fillMaxWidth()
-      }.padding(8.dp).verticalScroll(rememberScrollState())
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+      }.verticalScroll(rememberScrollState())
     ) {
       var connectSettingExpanded by remember { mutableStateOf(false) }
       ConnectStatusCard(apiUsable,
@@ -97,10 +97,12 @@ fun IndexPage() {
           LoginInfoCard()
         }
       }
+      if (currentScreenWidth < screenTypeChangeWidth) {
+        Spacer(Modifier.height(90.dp))}
     }
     if (currentScreenWidth >= screenTypeChangeWidth) {
       Spacer(modifier = Modifier.width(8.dp))
-      Column(modifier = Modifier.width(300.dp).padding(8.dp)) {
+      Column(modifier = Modifier.width(350.dp).padding(end = 16.dp)) {
         AnimatedVisibility(
           connectStatus == ConnectStatus.CONNECT,
           enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
