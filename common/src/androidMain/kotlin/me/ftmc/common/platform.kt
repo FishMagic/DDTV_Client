@@ -4,10 +4,9 @@ import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import me.ftmc.common.backend.accessKeyId
-import me.ftmc.common.backend.accessKeySecret
-import me.ftmc.common.backend.darkMode
-import me.ftmc.common.backend.url
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
 lateinit var sharedRef: SharedPreferences
@@ -19,11 +18,10 @@ actual fun getPlatformName(): String {
 
 actual fun saveConfig() {
   logger.debug("[Android] 开始保存配置信息")
+  val configClass = ConfigClass(serverList, darkMode)
+  val configString = Json.encodeToString(configClass)
   with(sharedRef.edit()) {
-    putString("url", url)
-    putString("accessKeyId", accessKeyId)
-    putString("accessKeySecret", accessKeySecret)
-    putString("darkMode", darkMode?.toString() ?: "null")
+    putString("config", configString)
     apply()
   }
   logger.debug("[Android] 保存配置信息成功")
@@ -35,13 +33,25 @@ actual fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
 
 actual fun loadConfig() {
   logger.debug("[Android] 开始加载配置信息")
-  url = sharedRef.getString("url", "") ?: ""
-  accessKeyId = sharedRef.getString("accessKeyId", "") ?: ""
-  accessKeySecret = sharedRef.getString("accessKeySecret", "") ?: ""
-  darkMode = when (sharedRef.getString("darkMode", "null") ?: "null") {
-    "false" -> false
-    "true" -> true
-    else -> null
+  val configString = sharedRef.getString("config", "") ?: ""
+  try {
+    val configClass = Json.decodeFromString<ConfigClass>(configString)
+    serverList = configClass.serverList
+    var selectedServer: Server? = null
+    for (server in serverList) {
+      if (server.selected) {
+        selectedServer = server
+        break
+      }
+    }
+    if (selectedServer != null) {
+      url = selectedServer.url
+      accessKeySecret = selectedServer.accessKeySecret
+      accessKeyId = selectedServer.accessKeyId
+    }
+    darkMode = configClass.darkMode
+  } catch (_: Exception) {
+    logger.warn("[Android] 配置文件存在问题，使用默认配置")
   }
   logger.debug("[Android] 加载配置信息成功")
 }

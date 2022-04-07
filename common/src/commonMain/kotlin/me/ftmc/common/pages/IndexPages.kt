@@ -28,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import me.ftmc.common.APIError
 import me.ftmc.common.ConnectStatus
+import me.ftmc.common.Server
 import me.ftmc.common.accessKeyId
 import me.ftmc.common.accessKeySecret
 import me.ftmc.common.backend.loginStatusFlow
@@ -52,6 +54,7 @@ import me.ftmc.common.getRequestURL
 import me.ftmc.common.httpClient
 import me.ftmc.common.saveConfig
 import me.ftmc.common.screenTypeChangeWidth
+import me.ftmc.common.serverList
 import me.ftmc.common.url
 import org.slf4j.LoggerFactory
 
@@ -72,20 +75,35 @@ fun IndexPage() {
         Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
       }.verticalScroll(rememberScrollState())
     ) {
-      var connectSettingExpanded by remember { mutableStateOf(false) }
-      ConnectStatusCard(
-        apiUsable,
+      var connectAddExpanded by remember { mutableStateOf(false) }
+      var connectSelectExpanded by remember { mutableStateOf(false) }
+      ConnectStatusCard(apiUsable,
         connectStatus,
-        connectSettingExpanded,
-        { apiUsable = it },
-        { connectStatus = it },
-        { connectSettingExpanded = it })
-      if (connectSettingExpanded) {
+        connectAddExpanded,
+        connectSelectExpanded,
+        apiUsableUpdater = { apiUsable = it },
+        connectStatusUpdater = { connectStatus = it },
+        connectAddExpandedUpdater = {
+          connectAddExpanded = it
+          connectSelectExpanded = false
+        },
+        connectSelectExpandedUpdater = {
+          connectSelectExpanded = it
+          connectAddExpanded = false
+        })
+      if (connectAddExpanded) {
         Spacer(Modifier.height(8.dp))
       }
-      ConnectSettingsCard(connectSettingExpanded) {
+      ConnectAddCard(connectAddExpanded) {
         apiUsable = true
-        connectSettingExpanded = false
+        connectAddExpanded = false
+      }
+      if (connectSelectExpanded) {
+        Spacer(Modifier.height(8.dp))
+      }
+      ConnectSelectCard(connectSelectExpanded) {
+        apiUsable = true
+        connectSelectExpanded = false
       }
       if (currentScreenWidth < screenTypeChangeWidth) {
         if (connectStatus == ConnectStatus.CONNECT) {
@@ -111,10 +129,12 @@ fun IndexPage() {
 private fun ConnectStatusCard(
   apiUsable: Boolean,
   connectStatus: ConnectStatus,
-  connectSettingExpanded: Boolean,
+  connectAddExpanded: Boolean,
+  connectSelectExpanded: Boolean,
   apiUsableUpdater: (Boolean) -> Unit,
   connectStatusUpdater: (ConnectStatus) -> Unit,
-  connectSettingExpandedUpdater: (Boolean) -> Unit
+  connectAddExpandedUpdater: (Boolean) -> Unit,
+  connectSelectExpandedUpdater: (Boolean) -> Unit
 ) {
   OutlinedCard(modifier = Modifier.fillMaxWidth()) {
     var ddtvCoreVersion by remember { mutableStateOf("") }
@@ -125,6 +145,7 @@ private fun ConnectStatusCard(
       systemInfoFlow.catch {
         if (it is APIError) {
           val tempConnectStatus = when (it.code) {
+            -1 -> ConnectStatus.DISCONNECT
             6000 -> ConnectStatus.COOKIE_TIMEOUT
             6001 -> ConnectStatus.LOGIN_FAILED
             6002 -> ConnectStatus.SIG_FAILED
@@ -150,9 +171,6 @@ private fun ConnectStatusCard(
       Text(text = "服务器信息", style = MaterialTheme.typography.headlineSmall)
       Row(verticalAlignment = Alignment.CenterVertically) {
         Text("连接状态：${connectStatus.statusString}", style = MaterialTheme.typography.bodySmall)
-        TextButton(onClick = { connectSettingExpandedUpdater(!connectSettingExpanded) }) {
-          Text(text = "设置")
-        }
         AnimatedVisibility(
           connectStatus != ConnectStatus.CONNECT, enter = fadeIn(), exit = fadeOut()
         ) {
@@ -175,31 +193,111 @@ private fun ConnectStatusCard(
           Text(text = "DDTV 运行环境版本：$dotnetVersion", style = MaterialTheme.typography.bodySmall)
         }
       }
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        TextButton(onClick = { connectSelectExpandedUpdater(!connectSelectExpanded) }) {
+          Text(text = "选择服务器")
+        }
+        TextButton(onClick = { connectAddExpandedUpdater(!connectAddExpanded) }) {
+          Text(text = "添加服务器")
+        }
+      }
     }
   }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpdater: () -> Unit) {
+private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater: () -> Unit) {
   AnimatedVisibility(
-    connectSettingExpanded,
+    connectSelectExpanded,
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    val logger = remember { LoggerFactory.getLogger("ConnectSettingsCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-      var tempURL by remember { mutableStateOf(url) }
-      var tempAccessKeyId by remember { mutableStateOf(accessKeyId) }
-      var tempAccessKeySecret by remember { mutableStateOf(accessKeySecret) }
+      val tempSeverList = remember { mutableStateListOf<Server>() }
+      LaunchedEffect(true) {
+        serverList.forEach { tempSeverList.add(it) }
+      }
       Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "连接设置", style = MaterialTheme.typography.headlineSmall)
+        Text(text = "服务器选择", style = MaterialTheme.typography.headlineSmall)
+        tempSeverList.forEach { rowServer ->
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(.6f)) {
+              Text(text = rowServer.url, style = MaterialTheme.typography.bodySmall)
+            }
+            Column(modifier = Modifier.weight(.2f), horizontalAlignment = Alignment.CenterHorizontally) {
+              TextButton(onClick = {
+                tempSeverList.forEach { server -> server.selected = server.url == rowServer.url }
+                serverList.clear()
+                tempSeverList.forEach { serverList.add(it) }
+                url = rowServer.url
+                accessKeyId = rowServer.accessKeyId
+                accessKeySecret = rowServer.accessKeySecret
+                saveConfig()
+                settingSaveUpdater()
+              }) {
+                Text(text = "选择")
+              }
+            }
+            Column(modifier = Modifier.weight(.2f), horizontalAlignment = Alignment.CenterHorizontally) {
+              TextButton(onClick = {
+                var removedServer: Server? = null
+                tempSeverList.forEach { if (it.url == rowServer.url) removedServer = it }
+                if (removedServer != null) {
+                  tempSeverList.remove(removedServer)
+                  serverList.clear()
+                  tempSeverList.forEach { serverList.add(it) }
+                  url = ""
+                  accessKeyId = ""
+                  accessKeySecret = ""
+                  saveConfig()
+                }
+              }) {
+                Text(text = "删除")
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -> Unit) {
+  AnimatedVisibility(
+    connectAddExpanded,
+    enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+    exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+  ) {
+    val logger = remember { LoggerFactory.getLogger("ConnectAddCard") }
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      var tempURL by remember { mutableStateOf("") }
+      var tempAccessKeyId by remember { mutableStateOf("") }
+      var tempAccessKeySecret by remember { mutableStateOf("") }
+      Column(modifier = Modifier.padding(16.dp)) {
+        var serverExist by remember { mutableStateOf(false) }
+        Text(text = "服务器添加", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
-        OutlinedTextField(value = tempURL,
-          onValueChange = { tempURL = it },
+        OutlinedTextField(
+          value = tempURL,
+          onValueChange = {
+            tempURL = it
+            for (server in serverList) {
+              if (server.url == it) {
+                serverExist = true
+                return@OutlinedTextField
+              }
+              serverExist = false
+            }
+          },
           placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https:// 部分") },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-          label = { androidx.compose.material.Text(text = "服务器地址") })
+          label = { androidx.compose.material.Text(text = "服务器地址") },
+          isError = serverExist
+        )
         OutlinedTextField(value = tempAccessKeyId,
           onValueChange = { tempAccessKeyId = it },
           label = { androidx.compose.material.Text(text = "AccessKeyId") })
@@ -207,13 +305,15 @@ private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpda
           onValueChange = { tempAccessKeySecret = it },
           label = { androidx.compose.material.Text(text = "AccessKeySecret") })
         TextButton(onClick = {
+          serverList.forEach { it.selected = false }
+          serverList.add(Server(tempURL, tempAccessKeyId, tempAccessKeySecret, true))
           url = tempURL
           accessKeyId = tempAccessKeyId
           accessKeySecret = tempAccessKeySecret
           saveConfig()
           settingSaveUpdater()
-          logger.info("[ConnectSettingsCard] 配置保存成功")
-        }) {
+          logger.info("[ConnectAddCard] 配置保存成功")
+        }, enabled = !serverExist) {
           Text(text = "保存")
         }
       }

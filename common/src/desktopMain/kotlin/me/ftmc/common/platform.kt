@@ -3,14 +3,9 @@ package me.ftmc.common
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
-import me.ftmc.common.backend.accessKeyId
-import me.ftmc.common.backend.accessKeySecret
-import me.ftmc.common.backend.darkMode
-import me.ftmc.common.backend.url
 import org.jetbrains.skia.Image
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -19,9 +14,6 @@ import java.io.FileOutputStream
 
 private val logger = LoggerFactory.getLogger("Desktop")
 
-@Serializable
-data class ConfigClass(val url: String, val accessKeyId: String, val accessKeySecret: String, val darkMode: Boolean?)
-
 actual fun getPlatformName(): String {
   return "Desktop"
 }
@@ -29,8 +21,7 @@ actual fun getPlatformName(): String {
 @OptIn(ExperimentalSerializationApi::class)
 actual fun saveConfig() {
   logger.debug("[Desktop] 开始保存配置信息")
-  val configClass =
-    ConfigClass(url = url, accessKeyId = accessKeyId, accessKeySecret = accessKeySecret, darkMode = darkMode)
+  val configClass = ConfigClass(serverList, darkMode)
   val file = File("config.json")
   logger.debug("[Desktop] 打开文件成功")
   if (!file.exists()) {
@@ -60,9 +51,19 @@ actual fun loadConfig() {
   val fis = FileInputStream(file)
   try {
     val configClass = Json.decodeFromStream<ConfigClass>(fis)
-    url = configClass.url
-    accessKeySecret = configClass.accessKeySecret
-    accessKeyId = configClass.accessKeyId
+    serverList = configClass.serverList
+    var selectedServer: Server? = null
+    for (server in serverList) {
+      if (server.selected) {
+        selectedServer = server
+        break
+      }
+    }
+    if (selectedServer != null) {
+      url = selectedServer.url
+      accessKeySecret = selectedServer.accessKeySecret
+      accessKeyId = selectedServer.accessKeyId
+    }
     darkMode = configClass.darkMode
   } catch (_: Exception) {
     logger.warn("[Desktop] 配置文件存在问题，使用默认配置")
