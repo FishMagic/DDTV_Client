@@ -62,7 +62,7 @@ val roomAllInfoFlow = flow {
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
       logger.debug("[roomAllInfoFlow] 发送获取错误信息请求")
-      val errorResponse: StringDataResponse = httpClient.get(urlString = "${url}${redirectURL}")
+      val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
       logger.debug("[roomAllInfoFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
@@ -108,7 +108,7 @@ val recordInfoFlow = flow {
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
       logger.debug("[recordInfoFlow] 发送获取错误信息请求")
-      val errorResponse: StringDataResponse = httpClient.get(urlString = "${url}${redirectURL}")
+      val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
       logger.debug("[recordInfoFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }

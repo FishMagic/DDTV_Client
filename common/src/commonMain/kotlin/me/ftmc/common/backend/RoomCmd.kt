@@ -46,7 +46,7 @@ suspend fun roomCmdWithUID(cmd: String, uid: String): String {
     val redirectURL = e.response.headers["Location"]
     if (redirectURL != null) {
       logger.debug("[roomCmdWithUID] 发送获取错信息请求")
-      val errorResponse: StringDataResponse = httpClient.get(urlString = "${url}${redirectURL}")
+      val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
       logger.debug("[roomCmdWithUID] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
@@ -88,7 +88,7 @@ suspend fun roomCmdWithUIDAndBoolean(cmd: String, uid: String, key: String, valu
     val redirectURL = e.response.headers["Location"]
     if (redirectURL != null) {
       logger.debug("[roomCmdWithUIDAndBoolean] 发送获取错信息请求")
-      val errorResponse: StringDataResponse = httpClient.get(urlString = "${url}${redirectURL}")
+      val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
       logger.debug("[roomCmdWithUIDAndBoolean] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
