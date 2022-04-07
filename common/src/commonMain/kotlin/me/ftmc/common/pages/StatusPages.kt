@@ -347,13 +347,15 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
           val roomSetScope = rememberCoroutineScope()
           var buttonEnable by remember { mutableStateOf(true) }
           Text("自动录制：", style = MaterialTheme.typography.bodySmall)
-          Checkbox(checked = room.isAutoRec, onCheckedChange = {
+          var isAutoRec by remember { mutableStateOf(room.isAutoRec) }
+          Checkbox(checked = isAutoRec, onCheckedChange = {
             buttonEnable = false
             logger.debug("[RoomStatusCard-${room.uid}] 开始修改自动录制状态 -> $it")
             roomSetScope.launch(Dispatchers.IO) {
               try {
                 logger.debug("[RoomStatusCard-${room.uid}] 准备发送修改自动录制请求")
                 roomCmdWithUIDAndBoolean("Room_AutoRec", room.uid.toString(), "IsAutoRec", it)
+                isAutoRec = it
                 logger.info("[RoomStatusCard-${room.uid}] 修改自动录制状态成功")
               } catch (e: APIError) {
                 logger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生API错误 -> ${e.code}")
@@ -364,13 +366,15 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
             }
           }, enabled = buttonEnable)
           Text("录制弹幕：", style = MaterialTheme.typography.bodySmall)
-          Checkbox(checked = room.isRecDanmu, onCheckedChange = {
+          var isRecDanmu by remember { mutableStateOf(room.isRecDanmu) }
+          Checkbox(checked = isRecDanmu, onCheckedChange = {
             buttonEnable = false
             logger.debug("[RoomStatusCard-${room.uid}] 开始修改录制弹幕状态 -> $it")
             roomSetScope.launch(Dispatchers.IO) {
               try {
                 logger.debug("[RoomStatusCard-${room.uid}] 准备发送修改录制弹幕状态请求")
                 roomCmdWithUIDAndBoolean("Room_DanmuRec", room.uid.toString(), "IsRecDanmu", it)
+                isRecDanmu = it
                 logger.info("[RoomStatusCard-${room.uid}] 修改弹幕录制状态成功")
               } catch (e: APIError) {
                 logger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生API错误 -> ${e.code}")
@@ -443,6 +447,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
                     logger.debug("[RoomStatusCard-${room.uid}] 准备发送取消录制请求")
                     roomCmdWithUID("Rec_CancelDownload", room.uid.toString())
                     logger.info("[RoomStatusCard-${room.uid}] 取消录制成功")
+                    liveInfoExpanded = false
                   } catch (e: APIError) {
                     logger.warn("[RoomStatusCard-${room.uid}] 取消录制发生API错误 -> ${e.code}")
                   } catch (e: Exception) {

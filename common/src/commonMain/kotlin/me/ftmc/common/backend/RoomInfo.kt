@@ -43,7 +43,7 @@ val roomAllInfoFlow = flow {
       throw APIError(apiErrorObject.code)
     }
 
-    delay(1000L)
+    delay(10000L)
   }
 }.catch {
   val logger = LoggerFactory.getLogger("roomAllInfoFlow")
@@ -89,7 +89,7 @@ val recordInfoFlow = flow {
       throw APIError(apiErrorObject.code)
     }
 
-    delay(1000L)
+    delay(10000L)
   }
 }.catch {
   val logger = LoggerFactory.getLogger("recordInfoFlow")
