@@ -1,14 +1,18 @@
 package me.ftmc.common
 
+import kotlinx.serialization.Serializable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
+@Serializable
 class LogObject(val level: String, val time: Long, val message: String)
 
-object LocalLogger {
-  var loggerBuket = mutableListOf<LogObject>()
-  private val backendLogger: Logger = LoggerFactory.getLogger("FrontEnd")
+class LocalLogger {
+  companion object {
+    private val backendLogger: Logger = LoggerFactory.getLogger("FrontEnd")
+    val loggerBuket = mutableListOf<LogObject>()
+  }
 
   @Synchronized
   fun info(message: String) {

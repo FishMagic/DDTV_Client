@@ -23,28 +23,27 @@ import me.ftmc.common.getRequestURL
 import me.ftmc.common.getSig
 import me.ftmc.common.httpClient
 import me.ftmc.common.url
-import org.slf4j.LoggerFactory
 import java.time.Instant
 
 val loginStatusFlow = flow {
-  LoggerFactory.getLogger("loginStatusFlow")
+  val logger = LocalLogger()
   val cmd = "System_QueryUserState"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
       throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
-    LocalLogger.debug("[loginStatusFlow] 发送获取登录状态请求")
+    logger.debug("[loginStatusFlow] 发送获取登录状态请求")
     val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
       append("accesskeyid", accessKeyId)
       append("cmd", cmd)
       append("time", nowTime.toString())
       append("sig", getSig(cmd, nowTime))
     })
-    LocalLogger.debug("[loginStatusFlow] 登录状态响应成功")
+    logger.debug("[loginStatusFlow] 登录状态响应成功")
     try {
       val responseData: BooleanDataResponse = httpResponse.receive()
-      LocalLogger.debug("[loginStatusFlow] 登录状态解析成功")
+      logger.debug("[loginStatusFlow] 登录状态解析成功")
       emit(responseData.data)
       if (responseData.data) {
         delay(300000L)
@@ -52,26 +51,26 @@ val loginStatusFlow = flow {
         delay(1000L)
       }
     } catch (_: NoTransformationFoundException) {
-      LocalLogger.warn("[loginStatusFlow] 登录状态解析失败，尝试解析错误信息")
+      logger.warn("[loginStatusFlow] 登录状态解析失败，尝试解析错误信息")
       val errorResponse: String = httpResponse.receive()
       val apiErrorObject = Json.decodeFromString<StringDataResponse>(errorResponse)
-      LocalLogger.debug("[loginStatusFlow] 错误信息解析成功")
+      logger.debug("[loginStatusFlow] 错误信息解析成功")
       throw APIError(apiErrorObject.code)
     }
   }
 }.catch {
-  LoggerFactory.getLogger("loginStatusFlow")
+  val logger = LocalLogger()
   if (it is RedirectResponseException) {
-    LocalLogger.warn("[loginStatusFlow] 发现302重定向")
+    logger.warn("[loginStatusFlow] 发现302重定向")
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
-      LocalLogger.debug("[loginStatusFlow] 发送获取错误信息请求")
+      logger.debug("[loginStatusFlow] 发送获取错误信息请求")
       val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
-      LocalLogger.debug("[loginStatusFlow] 解析错误信息成功")
+      logger.debug("[loginStatusFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
   } else {
-    LocalLogger.warn("[loginStatusFlow] 发生预料外错误 -> ${it.message}")
+    logger.warn("[loginStatusFlow] 发生预料外错误 -> ${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)

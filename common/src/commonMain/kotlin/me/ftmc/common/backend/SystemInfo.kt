@@ -23,51 +23,50 @@ import me.ftmc.common.getRequestURL
 import me.ftmc.common.getSig
 import me.ftmc.common.httpClient
 import me.ftmc.common.url
-import org.slf4j.LoggerFactory
 import java.time.Instant
 
 val systemInfoFlow = flow {
-  LoggerFactory.getLogger("systemInfoFlow")
+  val logger = LocalLogger()
   val cmd = "System_Info"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
       throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
-    LocalLogger.debug("[systemInfoFlow] 发送获取系统信息请求")
+    logger.debug("[systemInfoFlow] 发送获取系统信息请求")
     val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
       append("accesskeyid", accessKeyId)
       append("cmd", cmd)
       append("time", nowTime.toString())
       append("sig", getSig(cmd, nowTime))
     })
-    LocalLogger.debug("[systemInfoFlow] 系统信息响应成功")
+    logger.debug("[systemInfoFlow] 系统信息响应成功")
     try {
       val responseData: SystemInfoResponse = httpResponse.receive()
-      LocalLogger.debug("[systemInfoFlow] 系统信息解析成功")
+      logger.debug("[systemInfoFlow] 系统信息解析成功")
       emit(responseData.data)
     } catch (_: NoTransformationFoundException) {
-      LocalLogger.warn("[systemInfoFlow] 系统信息解析失败，尝试解析错误信息")
+      logger.warn("[systemInfoFlow] 系统信息解析失败，尝试解析错误信息")
       val errorResponse: String = httpResponse.receive()
       val apiErrorObject = Json.decodeFromString<StringDataResponse>(errorResponse)
-      LocalLogger.debug("[systemInfoFlow] 错误信息解析成功")
+      logger.debug("[systemInfoFlow] 错误信息解析成功")
       throw APIError(apiErrorObject.code)
     }
     delay(5000L)
   }
 }.catch {
-  LoggerFactory.getLogger("systemInfoFlow")
+  val logger = LocalLogger()
   if (it is RedirectResponseException) {
-    LocalLogger.warn("[systemInfoFlow] 发现302重定向")
+    logger.warn("[systemInfoFlow] 发现302重定向")
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
-      LocalLogger.debug("[systemInfoFlow] 发送获取错误信息请求")
+      logger.debug("[systemInfoFlow] 发送获取错误信息请求")
       val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
-      LocalLogger.debug("[systemInfoFlow] 解析错误信息成功")
+      logger.debug("[systemInfoFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
   } else {
-    LocalLogger.warn("[systemInfoFlow] 发生预料外错误 -> ${it.message}")
+    logger.warn("[systemInfoFlow] 发生预料外错误 -> ${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)

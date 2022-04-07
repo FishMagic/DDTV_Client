@@ -16,23 +16,23 @@ actual fun getPlatformName(): String {
   return "Android"
 }
 
-actual fun saveConfig() {
-  LocalLogger.debug("[Android] 开始保存配置信息")
+actual fun saveConfig(logger: LocalLogger) {
+  logger.debug("[Android] 开始保存配置信息")
   val configClass = ConfigClass(serverList, darkMode)
   val configString = Json.encodeToString(configClass)
   with(sharedRef.edit()) {
     putString("config", configString)
     apply()
   }
-  LocalLogger.debug("[Android] 保存配置信息成功")
+  logger.debug("[Android] 保存配置信息成功")
 }
 
 actual fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
   return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap()
 }
 
-actual fun loadConfig() {
-  LocalLogger.debug("[Android] 开始加载配置信息")
+actual fun loadConfig(logger: LocalLogger) {
+  logger.debug("[Android] 开始加载配置信息")
   val configString = sharedRef.getString("config", "") ?: ""
   try {
     val configClass = Json.decodeFromString<ConfigClass>(configString)
@@ -51,7 +51,7 @@ actual fun loadConfig() {
     }
     darkMode = configClass.darkMode
   } catch (_: Exception) {
-    LocalLogger.warn("[Android] 配置文件存在问题，使用默认配置")
+    logger.warn("[Android] 配置文件存在问题，使用默认配置")
   }
-  LocalLogger.debug("[Android] 加载配置信息成功")
+  logger.debug("[Android] 加载配置信息成功")
 }

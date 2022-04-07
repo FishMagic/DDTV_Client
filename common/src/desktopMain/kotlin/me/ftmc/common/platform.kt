@@ -16,20 +16,20 @@ actual fun getPlatformName(): String {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-actual fun saveConfig() {
-  LocalLogger.debug("[Desktop] 开始保存配置信息")
+actual fun saveConfig(logger: LocalLogger) {
+  logger.debug("[Desktop] 开始保存配置信息")
   val configClass = ConfigClass(serverList, darkMode)
   val file = File("config.json")
-  LocalLogger.debug("[Desktop] 打开文件成功")
+  logger.debug("[Desktop] 打开文件成功")
   if (!file.exists()) {
     file.createNewFile()
-    LocalLogger.debug("[Desktop] 文件不存在，新建文件")
+    logger.debug("[Desktop] 文件不存在，新建文件")
   }
   val fos = FileOutputStream(file)
   Json.encodeToStream(configClass, fos)
   fos.flush()
   fos.close()
-  LocalLogger.debug("[Desktop] 配置文件保存成功")
+  logger.debug("[Desktop] 配置文件保存成功")
 }
 
 actual fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
@@ -37,13 +37,13 @@ actual fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-actual fun loadConfig() {
-  LocalLogger.debug("[Desktop] 开始加载配置文件")
+actual fun loadConfig(logger: LocalLogger) {
+  logger.debug("[Desktop] 开始加载配置文件")
   val file = File("config.json")
-  LocalLogger.debug("[Desktop] 文件打开成功")
+  logger.debug("[Desktop] 文件打开成功")
   if (!file.exists()) {
     file.createNewFile()
-    LocalLogger.debug("[Desktop] 文件不存在，新建文件")
+    logger.debug("[Desktop] 文件不存在，新建文件")
   }
   val fis = FileInputStream(file)
   try {
@@ -63,7 +63,7 @@ actual fun loadConfig() {
     }
     darkMode = configClass.darkMode
   } catch (_: Exception) {
-    LocalLogger.warn("[Desktop] 配置文件存在问题，使用默认配置")
+    logger.warn("[Desktop] 配置文件存在问题，使用默认配置")
   }
-  LocalLogger.debug("[Desktop] 配置文件读取成功")
+  logger.debug("[Desktop] 配置文件读取成功")
 }

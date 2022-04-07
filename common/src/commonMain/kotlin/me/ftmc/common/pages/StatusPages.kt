@@ -58,7 +58,6 @@ import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.formatDataUnit
 import me.ftmc.common.formatLongTime
 import me.ftmc.common.screenTypeChangeWidth
-import org.slf4j.LoggerFactory
 import java.lang.StrictMath.max
 
 open class Room
@@ -80,7 +79,7 @@ lateinit var addFakeRoom: () -> Unit
 
 @Composable
 fun StatusPage() {
-  remember { LoggerFactory.getLogger("StatusPage") }
+  val logger = remember { LocalLogger() }
   val roomList = remember { mutableStateListOf<Room>() }
   val waitingRoomList = remember { mutableStateListOf<FakeRoom>() }
   var roomWaiting by remember { mutableStateOf(false) }
@@ -170,12 +169,11 @@ fun StatusPage() {
     roomAddSuccess = false
   }
   LaunchedEffect(true) {
-    LocalLogger.debug("[StatusPage] 页面加载")
+    logger.debug("[StatusPage] 页面加载")
   }
   LaunchedEffect(true) {
-    roomAllInfoFlow.catch {
-    }.collect { newRoomList ->
-      LocalLogger.debug("[StatusPage] 接收房间信息成功，数量${newRoomList.size}")
+    roomAllInfoFlow.catch {}.collect { newRoomList ->
+      logger.debug("[StatusPage] 接收房间信息成功，数量${newRoomList.size}")
       roomListChange(newRoomList)
     }
   }
@@ -187,7 +185,7 @@ fun StatusPage() {
     addFakeRoom = {
       waitingRoomList.add(FakeRoom())
       roomWaiting = true
-      LocalLogger.debug("[StatusPage] 接收添加房间请求")
+      logger.debug("[StatusPage] 接收添加房间请求")
     }
     Column(
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
@@ -197,14 +195,12 @@ fun StatusPage() {
       }.verticalScroll(scrollState)
     ) {
       for (room in if (currentScreenWidth >= screenTypeChangeWidth) childRoomList1 else roomList) {
-        RoomCard(room,
-          expandedUpdater = { if (it) columnExpanded1++ else columnExpanded1-- },
-          cancelUpdater = {
-            roomAddCancel = true
-            LocalLogger.debug("[StatusPage] 卡片上报取消添加房间")
-          }) {
+        RoomCard(room, expandedUpdater = { if (it) columnExpanded1++ else columnExpanded1-- }, cancelUpdater = {
+          roomAddCancel = true
+          logger.debug("[StatusPage] 卡片上报取消添加房间")
+        }) {
           roomAddSuccess = it
-          LocalLogger.debug("[StatusPage] 卡片上报添加房间成功")
+          logger.debug("[StatusPage] 卡片上报添加房间成功")
         }
         Spacer(Modifier.height(8.dp))
       }
@@ -218,14 +214,12 @@ fun StatusPage() {
       Spacer(Modifier.width(8.dp))
       Column(modifier = Modifier.width(350.dp).padding(end = 16.dp).verticalScroll(scrollState)) {
         for (room in childRoomList2) {
-          RoomCard(room,
-            expandedUpdater = { if (it) columnExpanded2++ else columnExpanded2-- },
-            cancelUpdater = {
-              roomAddCancel = true
-              LocalLogger.debug("[StatusPage] 卡片上报取消添加房间")
-            }) {
+          RoomCard(room, expandedUpdater = { if (it) columnExpanded2++ else columnExpanded2-- }, cancelUpdater = {
+            roomAddCancel = true
+            logger.debug("[StatusPage] 卡片上报取消添加房间")
+          }) {
             roomAddSuccess = it
-            LocalLogger.debug("[StatusPage] 卡片上报添加房间成功")
+            logger.debug("[StatusPage] 卡片上报添加房间成功")
           }
           Spacer(Modifier.height(8.dp))
         }
@@ -258,7 +252,7 @@ private fun RoomCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RoomAddCard(cancelUpdater: () -> Unit, addSuccessUpdater: (Boolean) -> Unit) {
-  remember { LoggerFactory.getLogger("RoomAddCard") }
+  val logger = remember { LocalLogger() }
   var cardShow by remember { mutableStateOf(false) }
   LaunchedEffect(true) {
     delay(1L)
@@ -269,7 +263,7 @@ private fun RoomAddCard(cancelUpdater: () -> Unit, addSuccessUpdater: (Boolean) 
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    LocalLogger.debug("[RoomAddCard] 卡片加载")
+    logger.debug("[RoomAddCard] 卡片加载")
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       Column(modifier = Modifier.padding(16.dp)) {
         var newUID by remember { mutableStateOf("") }
@@ -281,22 +275,22 @@ private fun RoomAddCard(cancelUpdater: () -> Unit, addSuccessUpdater: (Boolean) 
           var addStatus by remember { mutableStateOf("等待操作") }
           val editCardScope = rememberCoroutineScope()
           TextButton(onClick = {
-            LocalLogger.debug("[RoomAddCard] 开始添加房间 -> $newUID")
+            logger.debug("[RoomAddCard] 开始添加房间 -> $newUID")
             buttonEnable = false
             editCardScope.launch(Dispatchers.IO) {
               addStatus = try {
-                LocalLogger.debug("[RoomAddCard] 准备发送添加请求")
+                logger.debug("[RoomAddCard] 准备发送添加请求")
                 val temp = roomCmdWithUID("Room_Add", newUID)
                 addSuccessUpdater(true)
-                LocalLogger.info("[RoomAddCard] 添加成功")
+                logger.info("[RoomAddCard] 添加成功")
                 temp
               } catch (e: APIError) {
                 buttonEnable = true
-                LocalLogger.warn("[RoomAddCard] 发生 API 请求错误 -> ${e.code}")
+                logger.warn("[RoomAddCard] 发生 API 请求错误 -> ${e.code}")
                 buttonEnable = true
                 e.msg
               } catch (e: Exception) {
-                LocalLogger.warn("[RoomAddCard] 发生预料外错误 -> ${e.message}")
+                logger.warn("[RoomAddCard] 发生预料外错误 -> ${e.message}")
                 buttonEnable = true
                 "操作失败：未知错误"
               }
@@ -317,7 +311,7 @@ private fun RoomAddCard(cancelUpdater: () -> Unit, addSuccessUpdater: (Boolean) 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
-  remember { LoggerFactory.getLogger("RoomStatusCard-${room.uid}") }
+  val logger = remember { LocalLogger() }
   var cardShow by remember { mutableStateOf(false) }
   LaunchedEffect(true) {
     delay(1L)
@@ -328,7 +322,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    LocalLogger.debug("[RoomStatusCard-${room.uid}] 卡片加载")
+    logger.debug("[RoomStatusCard-${room.uid}] 卡片加载")
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       var liveInfoExpanded by remember { mutableStateOf(false) }
       Column(modifier = Modifier.padding(16.dp)) {
@@ -352,17 +346,17 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
           var isAutoRec by remember { mutableStateOf(room.isAutoRec) }
           Checkbox(checked = isAutoRec, onCheckedChange = {
             buttonEnable = false
-            LocalLogger.debug("[RoomStatusCard-${room.uid}] 开始修改自动录制状态 -> $it")
+            logger.debug("[RoomStatusCard-${room.uid}] 开始修改自动录制状态 -> $it")
             roomSetScope.launch(Dispatchers.IO) {
               try {
-                LocalLogger.debug("[RoomStatusCard-${room.uid}] 准备发送修改自动录制请求")
+                logger.debug("[RoomStatusCard-${room.uid}] 准备发送修改自动录制请求")
                 roomCmdWithUIDAndBoolean("Room_AutoRec", room.uid.toString(), "IsAutoRec", it)
                 isAutoRec = it
-                LocalLogger.info("[RoomStatusCard-${room.uid}] 修改自动录制状态成功")
+                logger.info("[RoomStatusCard-${room.uid}] 修改自动录制状态成功")
               } catch (e: APIError) {
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生API错误 -> ${e.code}")
+                logger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生API错误 -> ${e.code}")
               } catch (e: Exception) {
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生预料外错误 -> ${e.message}")
+                logger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生预料外错误 -> ${e.message}")
               }
               buttonEnable = true
             }
@@ -371,17 +365,17 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
           var isRecDanmu by remember { mutableStateOf(room.isRecDanmu) }
           Checkbox(checked = isRecDanmu, onCheckedChange = {
             buttonEnable = false
-            LocalLogger.debug("[RoomStatusCard-${room.uid}] 开始修改录制弹幕状态 -> $it")
+            logger.debug("[RoomStatusCard-${room.uid}] 开始修改录制弹幕状态 -> $it")
             roomSetScope.launch(Dispatchers.IO) {
               try {
-                LocalLogger.debug("[RoomStatusCard-${room.uid}] 准备发送修改录制弹幕状态请求")
+                logger.debug("[RoomStatusCard-${room.uid}] 准备发送修改录制弹幕状态请求")
                 roomCmdWithUIDAndBoolean("Room_DanmuRec", room.uid.toString(), "IsRecDanmu", it)
                 isRecDanmu = it
-                LocalLogger.info("[RoomStatusCard-${room.uid}] 修改弹幕录制状态成功")
+                logger.info("[RoomStatusCard-${room.uid}] 修改弹幕录制状态成功")
               } catch (e: APIError) {
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生API错误 -> ${e.code}")
+                logger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生API错误 -> ${e.code}")
               } catch (e: Exception) {
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生预料外错误 -> ${e.message}")
+                logger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生预料外错误 -> ${e.message}")
               }
               buttonEnable = true
             }
@@ -397,19 +391,19 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
           IconButton(onClick = {
             if (roomDeletedWaiting) {
               buttonEnable = false
-              LocalLogger.debug("[RoomStatusCard-${room.uid}] 开始删除房间")
+              logger.debug("[RoomStatusCard-${room.uid}] 开始删除房间")
               roomSetScope.launch(Dispatchers.IO) {
                 try {
-                  LocalLogger.debug("[RoomStatusCard-${room.uid}] 准备发送删除房间请求")
+                  logger.debug("[RoomStatusCard-${room.uid}] 准备发送删除房间请求")
                   roomCmdWithUID("Room_Del", room.uid.toString())
                   roomDeleted = true
-                  LocalLogger.info("[RoomStatusCard-${room.uid}] 删除房间成功")
+                  logger.info("[RoomStatusCard-${room.uid}] 删除房间成功")
                 } catch (e: APIError) {
                   buttonEnable = true
-                  LocalLogger.warn("[RoomStatusCard-${room.uid}] 删除房间发生API错误 -> ${e.code}")
+                  logger.warn("[RoomStatusCard-${room.uid}] 删除房间发生API错误 -> ${e.code}")
                 } catch (e: Exception) {
                   buttonEnable = true
-                  LocalLogger.warn("[RoomStatusCard-${room.uid}] 删除房间发生预料外错误 -> ${e.message}")
+                  logger.warn("[RoomStatusCard-${room.uid}] 删除房间发生预料外错误 -> ${e.message}")
                 }
               }
             } else {
@@ -439,11 +433,11 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
               val checkedRoom: RecRecordingInfoLiteData? = run {
                 for (recordInfoRoom in it) {
                   if (recordInfoRoom.Uid == room.uid) {
-                    LocalLogger.debug("[RoomStatusCard-${room.uid}] 读取录制信息成功")
+                    logger.debug("[RoomStatusCard-${room.uid}] 读取录制信息成功")
                     return@run recordInfoRoom
                   }
                 }
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 未发现录制信息")
+                logger.warn("[RoomStatusCard-${room.uid}] 未发现录制信息")
                 return@run null
               }
               if (checkedRoom == null) {
@@ -465,17 +459,17 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
               val downloadInfoScope = rememberCoroutineScope()
               IconButton(onClick = {
                 cancelButtonEnable = false
-                LocalLogger.debug("[RoomStatusCard-${room.uid}] 开始取消录制")
+                logger.debug("[RoomStatusCard-${room.uid}] 开始取消录制")
                 downloadInfoScope.launch(Dispatchers.IO) {
                   try {
-                    LocalLogger.debug("[RoomStatusCard-${room.uid}] 准备发送取消录制请求")
+                    logger.debug("[RoomStatusCard-${room.uid}] 准备发送取消录制请求")
                     roomCmdWithUID("Rec_CancelDownload", room.uid.toString())
-                    LocalLogger.info("[RoomStatusCard-${room.uid}] 取消录制成功")
+                    logger.info("[RoomStatusCard-${room.uid}] 取消录制成功")
                     liveInfoExpanded = false
                   } catch (e: APIError) {
-                    LocalLogger.warn("[RoomStatusCard-${room.uid}] 取消录制发生API错误 -> ${e.code}")
+                    logger.warn("[RoomStatusCard-${room.uid}] 取消录制发生API错误 -> ${e.code}")
                   } catch (e: Exception) {
-                    LocalLogger.warn("[RoomStatusCard-${room.uid}] 取消录制发生预料外错误 -> ${e.message}")
+                    logger.warn("[RoomStatusCard-${room.uid}] 取消录制发生预料外错误 -> ${e.message}")
                   }
                   cancelButtonEnable = true
                 }

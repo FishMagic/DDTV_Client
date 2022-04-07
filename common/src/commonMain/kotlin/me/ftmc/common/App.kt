@@ -27,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -65,11 +64,10 @@ enum class ConnectStatus(val statusString: String) {
 @Composable
 fun App() {
   var tabSelected by remember { mutableStateOf(TabList.Index) }
-  val appLogBuket = rememberSaveable { mutableListOf<LogObject>() }
-  LocalLogger.loggerBuket = appLogBuket
+  val logger = remember { LocalLogger() }
   LaunchedEffect(true) {
-    loadConfig()
-    LocalLogger.info("[Main] 启动成功")
+    loadConfig(logger)
+    logger.info("[Main] 启动成功")
   }
   Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(tabSelected.tabName) }) }, bottomBar = {
     AnimatedVisibility(currentScreenWidth < screenTypeChangeWidth) {
@@ -77,7 +75,7 @@ fun App() {
         TabList.values().forEach {
           NavigationRailItem(selected = tabSelected == it, onClick = {
             tabSelected = it
-            LocalLogger.debug("[Main] 切换至 ${it.tabName} 标签页")
+            logger.debug("[Main] 切换至 ${it.tabName} 标签页")
           }, icon = { Icon(it.tabIcon, it.tabName) }, label = { Text(it.tabName) })
         }
       }
@@ -87,7 +85,7 @@ fun App() {
       enter = slideIn { IntOffset(it.width / 2, it.height / 2) } + fadeIn(),
       exit = slideOut { IntOffset(it.width / 2, it.height / 2) } + fadeOut()) {
       FloatingActionButton(onClick = {
-        LocalLogger.debug("[Main] 点击增加房间按钮")
+        logger.debug("[Main] 点击增加房间按钮")
         addFakeRoom()
       }) {
         Icon(Icons.Filled.Add, "添加房间")
@@ -108,7 +106,7 @@ fun App() {
       when (tabSelected) {
         TabList.Index -> IndexPage()
         TabList.Status -> StatusPage()
-        TabList.Log -> LogPage(appLogBuket)
+        TabList.Log -> LogPage()
         TabList.About -> AboutPage()
       }
     }
