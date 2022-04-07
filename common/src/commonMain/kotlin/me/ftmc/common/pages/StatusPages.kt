@@ -19,6 +19,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -384,6 +385,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
               buttonEnable = true
             }
           }, enabled = buttonEnable)
+          var roomDeleted by remember { mutableStateOf(false) }
           IconButton(onClick = {
             buttonEnable = false
             logger.debug("[RoomStatusCard-${room.uid}] 开始删除房间")
@@ -391,16 +393,18 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
               try {
                 logger.debug("[RoomStatusCard-${room.uid}] 准备发送删除房间请求")
                 roomCmdWithUID("Room_Del", room.uid.toString())
+                roomDeleted = true
                 logger.info("[RoomStatusCard-${room.uid}] 删除房间成功")
               } catch (e: APIError) {
+                buttonEnable = true
                 logger.warn("[RoomStatusCard-${room.uid}] 删除房间发生API错误 -> ${e.code}")
               } catch (e: Exception) {
+                buttonEnable = true
                 logger.warn("[RoomStatusCard-${room.uid}] 删除房间发生预料外错误 -> ${e.message}")
               }
-              buttonEnable = true
             }
           }, enabled = buttonEnable) {
-            Icon(Icons.Filled.Delete, "删除房间")
+            Icon(if (roomDeleted) Icons.Filled.Done else Icons.Filled.Delete, "删除房间")
           }
         }
         AnimatedVisibility(
