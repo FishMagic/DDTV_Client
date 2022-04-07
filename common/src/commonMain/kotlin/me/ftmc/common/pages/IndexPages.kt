@@ -450,7 +450,7 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
               when (values()[config.Key]) {
                 IsAutoTranscod -> {
                   LocalLogger.info("[ServerConfigCard] 识别到自动转码配置 -> ${config.Key}, ${config.Value}")
-                  isAutoTranscod = config.Value.lowercase() == "true"
+                  isAutoTranscod = config.Value.toBoolean()
                   autoTranscodeButtonEnable = true
                 }
                 FlvSplitSize -> {
@@ -460,7 +460,7 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
                 }
                 IsRecDanmu -> {
                   LocalLogger.info("[ServerConfigCard] 识别到弹幕录制配置 -> ${config.Key}, ${config.Value}")
-                  isRecDanmu = config.Value.lowercase() == "true"
+                  isRecDanmu = config.Value.toBoolean()
                   isRecDanmuButtonEnable = true
                 }
                 else -> {}
