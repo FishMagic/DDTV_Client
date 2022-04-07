@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import me.ftmc.common.pages.AboutPage
 import me.ftmc.common.pages.IndexPage
 import me.ftmc.common.pages.LogPage
 import me.ftmc.common.pages.StatusPage
@@ -108,6 +109,7 @@ fun App() {
         TabList.Index -> IndexPage()
         TabList.Status -> StatusPage()
         TabList.Log -> LogPage(appLogBuket)
+        TabList.About -> AboutPage()
       }
     }
   }
