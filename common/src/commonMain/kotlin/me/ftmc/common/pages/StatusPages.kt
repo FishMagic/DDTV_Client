@@ -291,9 +291,11 @@ private fun RoomAddCard(cancelUpdater: () -> Unit, addSuccessUpdater: (Boolean) 
               } catch (e: APIError) {
                 buttonEnable = true
                 logger.warn("[RoomAddCard] 发生 API 请求错误 -> ${e.code}")
+                buttonEnable = true
                 e.msg
               } catch (e: Exception) {
                 logger.warn("[RoomAddCard] 发生预料外错误 -> ${e.message}")
+                buttonEnable = true
                 "操作失败：未知错误"
               }
             }
