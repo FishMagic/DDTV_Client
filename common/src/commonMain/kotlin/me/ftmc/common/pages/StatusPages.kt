@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -386,25 +387,44 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
             }
           }, enabled = buttonEnable)
           var roomDeleted by remember { mutableStateOf(false) }
+          var roomDeletedWaiting by remember { mutableStateOf(false) }
+          LaunchedEffect(roomDeletedWaiting) {
+            if (roomDeletedWaiting) {
+              delay(3000L)
+              roomDeletedWaiting = false
+            }
+          }
           IconButton(onClick = {
-            buttonEnable = false
-            LocalLogger.debug("[RoomStatusCard-${room.uid}] 开始删除房间")
-            roomSetScope.launch(Dispatchers.IO) {
-              try {
-                LocalLogger.debug("[RoomStatusCard-${room.uid}] 准备发送删除房间请求")
-                roomCmdWithUID("Room_Del", room.uid.toString())
-                roomDeleted = true
-                LocalLogger.info("[RoomStatusCard-${room.uid}] 删除房间成功")
-              } catch (e: APIError) {
-                buttonEnable = true
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 删除房间发生API错误 -> ${e.code}")
-              } catch (e: Exception) {
-                buttonEnable = true
-                LocalLogger.warn("[RoomStatusCard-${room.uid}] 删除房间发生预料外错误 -> ${e.message}")
+            if (roomDeletedWaiting) {
+              buttonEnable = false
+              LocalLogger.debug("[RoomStatusCard-${room.uid}] 开始删除房间")
+              roomSetScope.launch(Dispatchers.IO) {
+                try {
+                  LocalLogger.debug("[RoomStatusCard-${room.uid}] 准备发送删除房间请求")
+                  roomCmdWithUID("Room_Del", room.uid.toString())
+                  roomDeleted = true
+                  LocalLogger.info("[RoomStatusCard-${room.uid}] 删除房间成功")
+                } catch (e: APIError) {
+                  buttonEnable = true
+                  LocalLogger.warn("[RoomStatusCard-${room.uid}] 删除房间发生API错误 -> ${e.code}")
+                } catch (e: Exception) {
+                  buttonEnable = true
+                  LocalLogger.warn("[RoomStatusCard-${room.uid}] 删除房间发生预料外错误 -> ${e.message}")
+                }
               }
+            } else {
+              roomDeletedWaiting = true
             }
           }, enabled = buttonEnable) {
-            Icon(if (roomDeleted) Icons.Filled.Done else Icons.Filled.Delete, "删除房间")
+            Icon(
+              imageVector = if (roomDeletedWaiting) {
+                Icons.Filled.Warning
+              } else if (roomDeleted) {
+                Icons.Filled.Done
+              } else {
+                Icons.Filled.Delete
+              }, "删除房间"
+            )
           }
         }
         AnimatedVisibility(
