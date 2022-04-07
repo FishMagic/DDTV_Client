@@ -85,7 +85,10 @@ enum class ConfigKeys {
   InitializationStatus,
   HideIconState,
   AccessControlAllowOrigin,
-  AccessControlAllowCredentials
+  AccessControlAllowCredentials,
+  DoNotSleepWhileDownloading,
+  CookieDomain,
+  Shell
 }
 
 class APIError(val code: Int, val msg: String = "") : RuntimeException()
