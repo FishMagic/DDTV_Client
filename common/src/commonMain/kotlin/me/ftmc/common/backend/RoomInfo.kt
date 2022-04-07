@@ -31,8 +31,7 @@ val roomAllInfoFlow = flow {
   val cmd = "Room_AllInfo"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
-      delay(1000L)
-      continue
+      throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
     logger.debug("[roomAllInfoFlow] 发送获取房间信息请求")
@@ -77,8 +76,7 @@ val recordInfoFlow = flow {
   val cmd = "Rec_RecordingInfo_Lite"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
-      delay(1000L)
-      continue
+      throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
     logger.debug("[recordInfoFlow] 发送获取录制状态请求")

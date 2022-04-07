@@ -30,8 +30,7 @@ val systemInfoFlow = flow {
   val cmd = "System_Info"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
-      delay(1000L)
-      continue
+      throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
     logger.debug("[systemInfoFlow] 发送获取系统信息请求")

@@ -30,8 +30,7 @@ val loginStatusFlow = flow {
   val cmd = "System_QueryUserState"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
-      delay(1000L)
-      continue
+      throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
     logger.debug("[loginStatusFlow] 发送获取登录状态请求")
@@ -66,7 +65,7 @@ val loginStatusFlow = flow {
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
       logger.debug("[loginStatusFlow] 发送获取错误信息请求")
-      val errorResponse: StringDataResponse = httpClient.get(urlString = "${url}${redirectURL}")
+      val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
       logger.debug("[loginStatusFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
