@@ -45,6 +45,7 @@ suspend fun roomCmdWithUID(cmd: String, uid: String): String {
   } catch (e: Exception) {
     logger.warn("[roomCmdWithUID] 发生预料外错误 -> ${e.message}")
     return "操作失败：${e.message}"
+    throw e
   }
   logger.warn("[roomCmdWithUID] 操作失败")
   return "操作失败：未知原因"
@@ -86,7 +87,7 @@ suspend fun roomCmdWithUIDAndBoolean(cmd: String, uid: String, key: String, valu
     }
   } catch (e: Exception) {
     logger.warn("[roomCmdWithUIDAndBoolean] 发生预料外错误 -> ${e.message}")
-    return "操作失败：${e.message}"
+    throw e
   }
   logger.warn("[roomCmdWithUIDAndBoolean] 操作失败")
   return "操作失败：未知原因"
