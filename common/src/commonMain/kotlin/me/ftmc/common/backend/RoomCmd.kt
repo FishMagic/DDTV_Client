@@ -52,7 +52,6 @@ suspend fun roomCmdWithUID(cmd: String, uid: String): String {
     }
   } catch (e: Exception) {
     logger.warn("[roomCmdWithUID] 发生预料外错误 -> ${e.message}")
-    return "操作失败：${e.message}"
     throw e
   }
   logger.warn("[roomCmdWithUID] 操作失败")
