@@ -53,12 +53,17 @@ import me.ftmc.common.byteArrayToImageBitmap
 import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.saveConfig
 import me.ftmc.common.screenTypeChangeWidth
+import org.slf4j.LoggerFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IndexPage() {
+  val logger = remember { LoggerFactory.getLogger("IndexPage") }
   var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECT) }
   var apiUsable by remember { mutableStateOf(true) }
+  LaunchedEffect(true) {
+    logger.info("[Index] 页面加载")
+  }
   Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
     Column(
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
@@ -68,7 +73,8 @@ fun IndexPage() {
       }.verticalScroll(rememberScrollState())
     ) {
       var connectSettingExpanded by remember { mutableStateOf(false) }
-      ConnectStatusCard(apiUsable,
+      ConnectStatusCard(
+        apiUsable,
         connectStatus,
         connectSettingExpanded,
         { apiUsable = it },
@@ -114,6 +120,7 @@ private fun ConnectStatusCard(
     var ddtvCoreVersion by remember { mutableStateOf("") }
     var webCoreVersion by remember { mutableStateOf("") }
     var dotnetVersion by remember { mutableStateOf("") }
+    val logger = remember { LoggerFactory.getLogger("ConnectStatusCard") }
     LaunchedEffect(apiUsable) {
       systemInfoFlow.catch {
         if (it is APIError) {
@@ -125,8 +132,10 @@ private fun ConnectStatusCard(
             else -> ConnectStatus.UNKNOWN_ERROR
           }
           connectStatusUpdater(tempConnectStatus)
+          logger.warn("[ConnectStatusCard] 服务器返回状态 ${tempConnectStatus.statusString}")
         } else {
           connectStatusUpdater(ConnectStatus.NET_ERROR)
+          logger.warn("[ConnectStatusCard] 可能存在网络错误")
         }
         apiUsableUpdater(false)
       }.collect {
@@ -134,6 +143,7 @@ private fun ConnectStatusCard(
         webCoreVersion = it.os_Info.WebCore_Ver
         dotnetVersion = it.os_Info.AppCore_Ver
         connectStatusUpdater(ConnectStatus.CONNECT)
+        logger.debug("[ConnectStatusCard] 心跳响应成功")
       }
     }
     Column(modifier = Modifier.padding(16.dp)) {
@@ -146,7 +156,10 @@ private fun ConnectStatusCard(
         AnimatedVisibility(
           connectStatus != ConnectStatus.CONNECT, enter = fadeIn(), exit = fadeOut()
         ) {
-          TextButton(onClick = { apiUsableUpdater(true) }) {
+          TextButton(onClick = {
+            apiUsableUpdater(true)
+            logger.debug("[ConnectStatusCard] 重试连接")
+          }) {
             Text(text = "重试")
           }
         }
@@ -174,6 +187,7 @@ private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpda
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
+    val logger = remember { LoggerFactory.getLogger("ConnectSettingsCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       var tempURL by remember { mutableStateOf(url) }
       var tempAccessKeyId by remember { mutableStateOf(accessKeyId) }
@@ -183,7 +197,7 @@ private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpda
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(value = tempURL,
           onValueChange = { tempURL = it },
-          placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https://") },
+          placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https:// 部分") },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
           label = { androidx.compose.material.Text(text = "服务器地址") })
         OutlinedTextField(value = tempAccessKeyId,
@@ -198,6 +212,7 @@ private fun ConnectSettingsCard(connectSettingExpanded: Boolean, settingSaveUpda
           accessKeySecret = tempAccessKeySecret
           saveConfig()
           settingSaveUpdater()
+          logger.info("[ConnectSettingsCard] 配置保存成功")
         }) {
           Text(text = "保存")
         }
@@ -214,6 +229,7 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
+    val logger = remember { LoggerFactory.getLogger("LoginInfoCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       var loginStatus by remember { mutableStateOf(false) }
       var qrCodeExpanded by remember { mutableStateOf(false) }
@@ -223,6 +239,7 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
           if (!loginStatus) {
             qrCodeExpanded = true
           }
+          logger.debug("[LoginInfoCard] 心跳响应成功")
         }
       }
       Column(modifier = Modifier.padding(16.dp)) {

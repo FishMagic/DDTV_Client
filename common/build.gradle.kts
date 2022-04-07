@@ -29,6 +29,7 @@ kotlin {
         api(compose.materialIconsExtended)
         implementation("io.ktor:ktor-client-core:$ktor_version")
         implementation("io.ktor:ktor-client-serialization:$ktor_version")
+
       }
     }
     val commonTest by getting {
@@ -41,6 +42,7 @@ kotlin {
         api("androidx.appcompat:appcompat:1.4.1")
         api("androidx.core:core-ktx:1.7.0")
         implementation("io.ktor:ktor-client-android:$ktor_version")
+        implementation("org.slf4j:slf4j-android:1.7.36")
       }
     }
     val androidTest by getting {
@@ -52,6 +54,9 @@ kotlin {
       dependencies {
         api(compose.preview)
         implementation("io.ktor:ktor-client-cio:$ktor_version")
+        implementation("org.apache.logging.log4j:log4j-api:2.17.2")
+        implementation("org.apache.logging.log4j:log4j-core:2.17.2")
+        implementation("org.slf4j:slf4j-reload4j:1.7.36")
       }
     }
     val desktopTest by getting

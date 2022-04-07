@@ -8,3 +8,4 @@ local.properties
 /android/build/
 /android/release/*
 config.json
+/log
