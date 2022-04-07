@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -63,7 +64,7 @@ enum class ConnectStatus(val statusString: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App() {
-  var tabSelected by remember { mutableStateOf(TabList.Index) }
+  var tabSelected by rememberSaveable { mutableStateOf(TabList.Index) }
   val logger = remember { LocalLogger() }
   LaunchedEffect(true) {
     loadConfig(logger)
