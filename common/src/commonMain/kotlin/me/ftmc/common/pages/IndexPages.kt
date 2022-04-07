@@ -449,15 +449,18 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
             try {
               when (values()[config.Key]) {
                 IsAutoTranscod -> {
-                  isAutoTranscod = config.Value == "true"
+                  LocalLogger.info("[ServerConfigCard] 识别到自动转码配置 -> ${config.Key}, ${config.Value}")
+                  isAutoTranscod = config.Value.lowercase() == "true"
                   autoTranscodeButtonEnable = true
                 }
                 FlvSplitSize -> {
+                  LocalLogger.info("[ServerConfigCard] 识别到自动分割配置 -> ${config.Key}, ${config.Value}")
                   flvSplitSize = config.Value
                   flvSplitSizeButtonEnbale = true
                 }
                 IsRecDanmu -> {
-                  isRecDanmu = config.Value == "true"
+                  LocalLogger.info("[ServerConfigCard] 识别到弹幕录制配置 -> ${config.Key}, ${config.Value}")
+                  isRecDanmu = config.Value.lowercase() == "true"
                   isRecDanmuButtonEnable = true
                 }
                 else -> {}
