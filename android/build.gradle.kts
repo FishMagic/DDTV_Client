@@ -12,9 +12,11 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation("androidx.activity:activity-compose:1.4.0")
-    implementation("androidx.window:window:1.0.0")
-    implementation("androidx.window:window-java:1.0.0")
+  implementation("androidx.activity:activity-compose:1.4.0")
+  implementation("androidx.window:window:1.0.0")
+  implementation("androidx.window:window-java:1.0.0")
+  implementation("com.google.accompanist:accompanist-insets:0.23.1")
+  implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
 }
 
 android {

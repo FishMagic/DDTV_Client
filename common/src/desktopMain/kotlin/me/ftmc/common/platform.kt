@@ -1,5 +1,6 @@
 package me.ftmc.common
 
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -66,4 +67,16 @@ actual fun loadConfig(logger: LocalLogger) {
     logger.warn("[Desktop] 配置文件存在问题，使用默认配置")
   }
   logger.debug("[Desktop] 配置文件读取成功")
+}
+
+actual fun Modifier.topBarModifier(): Modifier {
+  return this
+}
+
+actual fun Modifier.bottomBarModifier(): Modifier {
+  return this
+}
+
+actual fun Modifier.navigationBarsHeightModifier(): Modifier {
+  return this
 }

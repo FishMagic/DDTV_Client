@@ -17,11 +17,13 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -39,6 +42,7 @@ import me.ftmc.common.pages.IndexPage
 import me.ftmc.common.pages.LogPage
 import me.ftmc.common.pages.StatusPage
 import me.ftmc.common.pages.addFakeRoom
+import kotlin.math.ln
 
 val screenTypeChangeWidth = 800.dp
 var currentScreenWidth = screenTypeChangeWidth
@@ -70,9 +74,25 @@ fun App() {
     loadConfig(logger)
     logger.info("[Main] 启动成功")
   }
-  Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(tabSelected.tabName) }) }, bottomBar = {
+  val currentPrimaryColor = MaterialTheme.colorScheme.primary
+  val currentSurfaceColor = MaterialTheme.colorScheme.surface
+  val alpha = ((4.5f * ln(4f)) + 2f) / 100f
+  val elevatedSurfaceColor = currentPrimaryColor.copy(alpha = alpha).compositeOver(currentSurfaceColor)
+  Scaffold(topBar = {
+    CenterAlignedTopAppBar(
+      title = { Text(tabSelected.tabName) },
+      modifier = Modifier.topBarModifier(),
+      colors = if (currentScreenWidth >= screenTypeChangeWidth) {
+        TopAppBarDefaults.centerAlignedTopAppBarColors()
+      } else {
+        TopAppBarDefaults.centerAlignedTopAppBarColors(
+          containerColor = elevatedSurfaceColor
+        )
+      }
+    )
+  }, bottomBar = {
     AnimatedVisibility(currentScreenWidth < screenTypeChangeWidth) {
-      NavigationBar {
+      NavigationBar(modifier = Modifier.bottomBarModifier()) {
         TabList.values().forEach {
           NavigationRailItem(selected = tabSelected == it, onClick = {
             tabSelected = it

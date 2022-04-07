@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.ftmc.common.currentScreenWidth
+import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.screenTypeChangeWidth
 
 private const val version = "1.0.0 Alpha"
@@ -22,7 +23,7 @@ private const val version = "1.0.0 Alpha"
 @Composable
 fun AboutPage() {
   Row(
-    modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+    modifier = Modifier.fillMaxSize().padding(16.dp),
     horizontalArrangement = Arrangement.Center,
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -35,6 +36,7 @@ fun AboutPage() {
         Spacer(Modifier.height(120.dp))
       } else {
         Spacer(Modifier.height(90.dp))
+        Spacer(Modifier.navigationBarsHeightModifier())
       }
       if (currentScreenWidth >= screenTypeChangeWidth) {
         Spacer(Modifier.width(80.dp))

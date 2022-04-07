@@ -2,8 +2,12 @@ package me.ftmc.common
 
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.google.accompanist.insets.navigationBarsHeight
+import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.statusBarsPadding
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -54,4 +58,16 @@ actual fun loadConfig(logger: LocalLogger) {
     logger.warn("[Android] 配置文件存在问题，使用默认配置")
   }
   logger.debug("[Android] 加载配置信息成功")
+}
+
+actual fun Modifier.topBarModifier(): Modifier {
+  return this.statusBarsPadding()
+}
+
+actual fun Modifier.bottomBarModifier(): Modifier {
+  return this.navigationBarsPadding()
+}
+
+actual fun Modifier.navigationBarsHeightModifier(): Modifier {
+  return this.navigationBarsHeight()
 }

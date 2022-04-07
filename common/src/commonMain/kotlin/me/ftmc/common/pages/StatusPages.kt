@@ -191,7 +191,7 @@ fun StatusPage() {
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
         Modifier.width(350.dp).padding(start = 16.dp)
       } else {
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp)
       }.verticalScroll(scrollState)
     ) {
       for (room in if (currentScreenWidth >= screenTypeChangeWidth) childRoomList1 else roomList) {

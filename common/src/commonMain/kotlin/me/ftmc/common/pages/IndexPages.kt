@@ -64,6 +64,7 @@ import me.ftmc.common.byteArrayToImageBitmap
 import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.getRequestURL
 import me.ftmc.common.httpClient
+import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.saveConfig
 import me.ftmc.common.screenTypeChangeWidth
 import me.ftmc.common.serverList
@@ -83,7 +84,7 @@ fun IndexPage() {
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
         Modifier.width(350.dp).padding(start = 16.dp)
       } else {
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp)
       }.verticalScroll(rememberScrollState())
     ) {
       var connectAddExpanded by remember { mutableStateOf(false) }
@@ -129,6 +130,7 @@ fun IndexPage() {
       }
       if (currentScreenWidth < screenTypeChangeWidth) {
         Spacer(Modifier.height(90.dp))
+        Spacer(Modifier.navigationBarsHeightModifier())
       }
     }
     if (currentScreenWidth >= screenTypeChangeWidth) {

@@ -1,25 +1,24 @@
 package me.ftmc.common.pages
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.formatLongTime
+import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.screenTypeChangeWidth
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,29 +26,31 @@ import me.ftmc.common.screenTypeChangeWidth
 fun LogPage() {
   if (currentScreenWidth >= screenTypeChangeWidth) {
     OutlinedCard(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp).fillMaxSize()) {
-      LogList(16.dp)
+      LogList()
     }
   } else {
-    LogList(0.dp)
+    LogList()
   }
 }
 
 @Composable
-private fun LogList(topPadding: Dp) {
-  val scrollState = rememberScrollState()
-  val scrollScope = rememberCoroutineScope()
-  Column(
-    modifier = Modifier.fillMaxSize().padding(start = 16.dp, top = topPadding, end = 16.dp, bottom = 16.dp)
-      .verticalScroll(scrollState)
+private fun LogList() {
+  val scrollState = rememberLazyListState()
+  LazyColumn(
+    modifier = Modifier.fillMaxSize().padding(16.dp),
+    state = scrollState
   ) {
-    LocalLogger.loggerBuket.forEach {
-      Text("[${it.level}] ${formatLongTime(it.time)}: ${it.message}", style = MaterialTheme.typography.bodySmall)
-      scrollScope.launch {
-        scrollState.scrollTo(scrollState.maxValue)
+    itemsIndexed(LocalLogger.loggerBuket) { index, log ->
+      Text("[${log.level}] ${formatLongTime(log.time)}: ${log.message}", style = MaterialTheme.typography.bodySmall)
+      LaunchedEffect(true) {
+        scrollState.animateScrollToItem(index)
       }
     }
-    if (currentScreenWidth < screenTypeChangeWidth) {
-      Spacer(Modifier.height(90.dp))
+    item {
+      if (currentScreenWidth < screenTypeChangeWidth) {
+        Spacer(Modifier.height(90.dp))
+        Spacer(Modifier.navigationBarsHeightModifier())
+      }
     }
   }
 }

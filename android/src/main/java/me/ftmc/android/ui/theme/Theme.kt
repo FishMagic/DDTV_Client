@@ -11,8 +11,12 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import me.ftmc.selfmusicplayer.ui.theme.Error10
 import me.ftmc.selfmusicplayer.ui.theme.Error100
 import me.ftmc.selfmusicplayer.ui.theme.Error20
@@ -53,6 +57,7 @@ import me.ftmc.selfmusicplayer.ui.theme.Tertiary80
 import me.ftmc.selfmusicplayer.ui.theme.Tertiary90
 import me.ftmc.selfmusicplayer.ui.theme.Typography2
 import me.ftmc.selfmusicplayer.ui.theme.Typography3
+import kotlin.math.ln
 
 private val DarkColorPalette3 = darkColorScheme(
   primary = Primary80,
@@ -171,9 +176,21 @@ fun Theme2(
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
   Theme3(darkTheme = darkTheme) {
     Theme2(darkTheme = darkTheme) {
-      val surfaceColor = MaterialTheme.colorScheme.surface
-      Surface(color = surfaceColor, modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-        androidx.compose.material.Surface(color = surfaceColor, content = content)
+      ProvideWindowInsets {
+        val systemUiController = rememberSystemUiController()
+        val currentPrimaryColor = MaterialTheme.colorScheme.primary
+        val currentSurfaceColor = MaterialTheme.colorScheme.surface
+        val alpha = ((4.5f * ln(4f)) + 2f) / 100f
+        val elevatedSurfaceColor = currentPrimaryColor.copy(alpha = alpha).compositeOver(currentSurfaceColor)
+        SideEffect {
+          systemUiController.setStatusBarColor(elevatedSurfaceColor)
+          systemUiController.setNavigationBarColor(currentSurfaceColor)
+        }
+
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        Surface(color = surfaceColor, modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+          androidx.compose.material.Surface(color = surfaceColor, content = content)
+        }
       }
     }
   }

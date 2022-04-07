@@ -43,6 +43,8 @@ kotlin {
         api("androidx.core:core-ktx:1.7.0")
         implementation("io.ktor:ktor-client-android:$ktor_version")
         implementation("org.slf4j:slf4j-android:1.7.36")
+        implementation("com.google.accompanist:accompanist-insets:0.23.1")
+        implementation("com.google.accompanist:accompanist-systemuicontroller:0.23.1")
       }
     }
     val androidTest by getting {
