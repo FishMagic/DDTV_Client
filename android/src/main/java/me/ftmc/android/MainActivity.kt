@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.window.layout.WindowMetricsCalculator
 import me.ftmc.android.ui.theme.AppTheme
 import me.ftmc.common.App
-import me.ftmc.common.backend.darkMode
+import me.ftmc.common.darkMode
 import me.ftmc.common.saveWindowsSizeType
 import me.ftmc.common.sharedRef
 

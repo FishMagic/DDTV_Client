@@ -40,19 +40,19 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import me.ftmc.common.APIError
 import me.ftmc.common.ConnectStatus
-import me.ftmc.common.backend.APIError
-import me.ftmc.common.backend.accessKeyId
-import me.ftmc.common.backend.accessKeySecret
-import me.ftmc.common.backend.getRequestURL
-import me.ftmc.common.backend.httpClient
+import me.ftmc.common.accessKeyId
+import me.ftmc.common.accessKeySecret
 import me.ftmc.common.backend.loginStatusFlow
 import me.ftmc.common.backend.systemInfoFlow
-import me.ftmc.common.backend.url
 import me.ftmc.common.byteArrayToImageBitmap
 import me.ftmc.common.currentScreenWidth
+import me.ftmc.common.getRequestURL
+import me.ftmc.common.httpClient
 import me.ftmc.common.saveConfig
 import me.ftmc.common.screenTypeChangeWidth
+import me.ftmc.common.url
 import org.slf4j.LoggerFactory
 
 @OptIn(ExperimentalMaterial3Api::class)

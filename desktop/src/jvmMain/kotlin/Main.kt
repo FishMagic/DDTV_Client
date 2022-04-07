@@ -7,7 +7,7 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import me.ftmc.android.ui.theme.AppTheme
 import me.ftmc.common.App
-import me.ftmc.common.backend.darkMode
+import me.ftmc.common.darkMode
 import me.ftmc.common.screenTypeChangeWidth
 
 fun main() = application {

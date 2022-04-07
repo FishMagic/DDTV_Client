@@ -13,6 +13,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import me.ftmc.common.APIError
+import me.ftmc.common.StringDataResponse
+import me.ftmc.common.SystemInfoResponse
+import me.ftmc.common.accessKeyId
+import me.ftmc.common.accessKeySecret
+import me.ftmc.common.getRequestURL
+import me.ftmc.common.getSig
+import me.ftmc.common.httpClient
+import me.ftmc.common.url
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
@@ -53,7 +62,7 @@ val systemInfoFlow = flow {
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
       logger.debug("[systemInfoFlow] 发送获取错误信息请求")
-      val errorResponse: StringDataResponse = httpClient.get(urlString = "${url}${redirectURL}")
+      val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
       logger.debug("[systemInfoFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }

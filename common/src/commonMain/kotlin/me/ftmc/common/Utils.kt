@@ -1,10 +1,11 @@
-package me.ftmc.common.backend
+package me.ftmc.common
 
 import io.ktor.client.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.ftmc.common.backend.MessageDigestUtils
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -16,6 +17,8 @@ var url = ""
 var accessKeyId = ""
 var accessKeySecret = ""
 
+var serverList = mutableListOf<Server>()
+
 val httpClient = HttpClient {
   install(JsonFeature) {
     serializer = KotlinxSerializer()
@@ -25,7 +28,7 @@ val httpClient = HttpClient {
 val getRequestURL: (String) -> String = { cmd -> "$url/api/$cmd" }
 
 fun getSig(cmd: String, nowTime: Long): String {
-  val strToSig = "accesskeyid=${accessKeyId};accesskeysecret=${accessKeySecret};cmd=${cmd.lowercase()};time=${nowTime};"
+  val strToSig = "accesskeyid=$accessKeyId;accesskeysecret=$accessKeySecret;cmd=${cmd.lowercase()};time=${nowTime};"
   return MessageDigestUtils.sha1(strToSig).uppercase()
 }
 
@@ -51,6 +54,13 @@ fun formatDataUnit(byte: Long): String {
 }
 
 class APIError(val code: Int, val msg: String = "") : RuntimeException()
+
+
+@Serializable
+data class ConfigClass(val serverList: MutableList<Server>, val darkMode: Boolean?)
+
+@Serializable
+data class Server(val url: String, val accessKeyId: String, val accessKeySecret: String, val selected: Boolean)
 
 @Serializable
 data class SystemInfoResponse(
