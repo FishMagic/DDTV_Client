@@ -53,6 +53,41 @@ fun formatDataUnit(byte: Long): String {
   }
 }
 
+enum class ConfigKeys {
+  RoomListConfig,
+  DownloadPath,
+  TmpPath,
+  DownloadDirectoryName,
+  DownloadFileName,
+  TranscodParmetrs,
+  IsAutoTranscod,
+  WEB_API_SSL,
+  pfxFileName,
+  pfxPasswordFileName,
+  DefaultVolume,
+  GUI_FirstStart,
+  WEB_FirstStart,
+  RecQuality,
+  PlayQuality,
+  IsRecDanmu,
+  IsRecGift,
+  IsRecGuard,
+  IsRecSC,
+  IsFlvSplit,
+  FlvSplitSize,
+  WebUserName,
+  WebPassword,
+  AccessKeyId,
+  AccessKeySecret,
+  ServerAID,
+  ServerName,
+  ClientAID,
+  InitializationStatus,
+  HideIconState,
+  AccessControlAllowOrigin,
+  AccessControlAllowCredentials
+}
+
 class APIError(val code: Int, val msg: String = "") : RuntimeException()
 
 
@@ -60,7 +95,7 @@ class APIError(val code: Int, val msg: String = "") : RuntimeException()
 data class ConfigClass(val serverList: MutableList<Server>, val darkMode: Boolean?)
 
 @Serializable
-data class Server(val url: String, val accessKeyId: String, val accessKeySecret: String, val selected: Boolean)
+data class Server(val url: String, val accessKeyId: String, val accessKeySecret: String, var selected: Boolean)
 
 @Serializable
 data class SystemInfoResponse(

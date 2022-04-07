@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,15 +40,24 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.ktor.client.request.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import me.ftmc.common.APIError
+import me.ftmc.common.ConfigKeys.FlvSplitSize
+import me.ftmc.common.ConfigKeys.IsAutoTranscod
+import me.ftmc.common.ConfigKeys.IsRecDanmu
+import me.ftmc.common.ConfigKeys.values
 import me.ftmc.common.ConnectStatus
 import me.ftmc.common.Server
 import me.ftmc.common.accessKeyId
 import me.ftmc.common.accessKeySecret
 import me.ftmc.common.backend.loginStatusFlow
+import me.ftmc.common.backend.systemCmdWithBoolean
+import me.ftmc.common.backend.systemCmdWithLong
+import me.ftmc.common.backend.systemConfigFlow
 import me.ftmc.common.backend.systemInfoFlow
 import me.ftmc.common.byteArrayToImageBitmap
 import me.ftmc.common.currentScreenWidth
@@ -110,6 +121,10 @@ fun IndexPage() {
           Spacer(Modifier.height(8.dp))
         }
         LoginInfoCard(connectStatus)
+        if (connectStatus == ConnectStatus.CONNECT) {
+          Spacer(Modifier.height(8.dp))
+        }
+        ServerConfigCard(connectStatus)
       }
       if (currentScreenWidth < screenTypeChangeWidth) {
         Spacer(Modifier.height(90.dp))
@@ -119,6 +134,10 @@ fun IndexPage() {
       Spacer(modifier = Modifier.width(8.dp))
       Column(modifier = Modifier.width(350.dp).padding(end = 16.dp)) {
         LoginInfoCard(connectStatus)
+        if (connectStatus == ConnectStatus.CONNECT) {
+          Spacer(Modifier.height(8.dp))
+        }
+        ServerConfigCard(connectStatus)
       }
     }
   }
@@ -136,11 +155,14 @@ private fun ConnectStatusCard(
   connectAddExpandedUpdater: (Boolean) -> Unit,
   connectSelectExpandedUpdater: (Boolean) -> Unit
 ) {
+  val logger = remember { LoggerFactory.getLogger("ConnectStatusCard") }
   OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+    LaunchedEffect(true) {
+      logger.info("[ConnectStatusCard] 卡片加载")
+    }
     var ddtvCoreVersion by remember { mutableStateOf("") }
     var webCoreVersion by remember { mutableStateOf("") }
     var dotnetVersion by remember { mutableStateOf("") }
-    val logger = remember { LoggerFactory.getLogger("ConnectStatusCard") }
     LaunchedEffect(apiUsable) {
       systemInfoFlow.catch {
         if (it is APIError) {
@@ -213,7 +235,11 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
+    val logger = remember { LoggerFactory.getLogger("ConnectSelectCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      LaunchedEffect(true) {
+        logger.info("[ConnectSelectCard] 卡片加载")
+      }
       val tempSeverList = remember { mutableStateListOf<Server>() }
       LaunchedEffect(true) {
         serverList.forEach { tempSeverList.add(it) }
@@ -235,6 +261,7 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
                 accessKeySecret = rowServer.accessKeySecret
                 saveConfig()
                 settingSaveUpdater()
+                logger.debug("[ConnectSelectCard] 服务器已选择 -> ${rowServer.url}")
               }) {
                 Text(text = "选择")
               }
@@ -251,6 +278,7 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
                   accessKeyId = ""
                   accessKeySecret = ""
                   saveConfig()
+                  logger.debug("[ConnectSelectCard] 服务器已删除 -> ${rowServer.url}")
                 }
               }) {
                 Text(text = "删除")
@@ -274,6 +302,8 @@ private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -
   ) {
     val logger = remember { LoggerFactory.getLogger("ConnectAddCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      LaunchedEffect(true)
+      { logger.info("[ConnectAddCard] 卡片加载") }
       var tempURL by remember { mutableStateOf("") }
       var tempAccessKeyId by remember { mutableStateOf("") }
       var tempAccessKeySecret by remember { mutableStateOf("") }
@@ -288,6 +318,7 @@ private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -
             for (server in serverList) {
               if (server.url == it) {
                 serverExist = true
+                logger.warn("检测到重复服务器")
                 return@OutlinedTextField
               }
               serverExist = false
@@ -331,6 +362,9 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
   ) {
     val logger = remember { LoggerFactory.getLogger("LoginInfoCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      LaunchedEffect(true) {
+        logger.info("[LoginInfoCard] 卡片加载")
+      }
       var loginStatus by remember { mutableStateOf(false) }
       var qrCodeExpanded by remember { mutableStateOf(false) }
       LaunchedEffect(true) {
@@ -379,6 +413,144 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
               CircularProgressIndicator(modifier = Modifier.size(256.dp))
             } else {
               Image(bitmap = imageBitmap!!, contentDescription = null, modifier = Modifier.size(256.dp))
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ServerConfigCard(connectStatus: ConnectStatus) {
+  AnimatedVisibility(
+    connectStatus == ConnectStatus.CONNECT,
+    enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
+    exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
+  ) {
+    val logger = remember { LoggerFactory.getLogger("ServerConfigCard") }
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+      LaunchedEffect(true) {
+        logger.info("[ServerConfigCard] 卡片加载")
+      }
+      var isAutoTranscod by remember { mutableStateOf(false) }
+      var autoTranscodeButtonEnable by remember { mutableStateOf(false) }
+      var flvSplitSize by remember { mutableStateOf("") }
+      var flvSplitSizeError by remember { mutableStateOf(false) }
+      var flvSplitSizeButtonEnbale by remember { mutableStateOf(false) }
+      var isRecDanmu by remember { mutableStateOf(false) }
+      var isRecDanmuButtonEnable by remember { mutableStateOf(false) }
+      val systemConfigScope = rememberCoroutineScope()
+      LaunchedEffect(true) {
+        systemConfigFlow.collect { configs ->
+          configs.forEach { config ->
+            try {
+              when (values()[config.Key]) {
+                IsAutoTranscod -> {
+                  isAutoTranscod = config.Value == "true"
+                  autoTranscodeButtonEnable = true
+                }
+                FlvSplitSize -> {
+                  flvSplitSize = config.Value
+                  flvSplitSizeButtonEnbale = true
+                }
+                IsRecDanmu -> {
+                  isRecDanmu = config.Value == "true"
+                  isRecDanmuButtonEnable = true
+                }
+                else -> {}
+              }
+            } catch (e: ArrayIndexOutOfBoundsException) {
+              logger.warn("[ServerConfigCard] 不正确的 Config Key -> ${config.Key}")
+            }
+          }
+        }
+      }
+      Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "服务器参数配置", style = MaterialTheme.typography.headlineSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Text(text = "自动转码", style = MaterialTheme.typography.bodySmall)
+          Checkbox(
+            checked = isAutoTranscod, onCheckedChange = {
+              autoTranscodeButtonEnable = false
+              logger.debug("[ServerConfigCard] 开始修改自动转码")
+              systemConfigScope.launch(Dispatchers.IO) {
+                try {
+                  logger.debug("[ServerConfigCard] 准备发送修改自动转码请求")
+                  systemCmdWithBoolean("Config_Transcod", "state", it)
+                  isAutoTranscod = it
+                  logger.info("[ServerConfigCard] 修改自动转码成功")
+                } catch (e: APIError) {
+                  logger.warn("[ServerConfigCard] 修改自动转码发生API错误 -> ${e.code}")
+                } catch (e: Exception) {
+                  logger.warn("[ServerConfigCard] 修改自动转码发生预料外错误 -> ${e.message}")
+                }
+                autoTranscodeButtonEnable = true
+              }
+            },
+            enabled = autoTranscodeButtonEnable
+          )
+          Text(text = "录制弹幕", style = MaterialTheme.typography.bodySmall)
+          Checkbox(
+            checked = isRecDanmu, onCheckedChange = {
+              isRecDanmuButtonEnable = false
+              logger.debug("[ServerConfigCard] 开始修改录制弹幕")
+              systemConfigScope.launch(Dispatchers.IO) {
+                try {
+                  logger.debug("[ServerConfigCard] 准备发送修改录制弹幕请求")
+                  systemCmdWithBoolean("Config_DanmuRec", "state", it)
+                  isRecDanmu = it
+                  logger.info("[ServerConfigCard] 修改录制弹幕成功")
+                } catch (e: APIError) {
+                  logger.warn("[ServerConfigCard] 修改录制弹幕发生API错误 -> ${e.code}")
+                } catch (e: Exception) {
+                  logger.warn("[ServerConfigCard] 修改录制弹幕发生预料外错误 -> ${e.message}")
+                }
+                isRecDanmuButtonEnable = true
+              }
+            },
+            enabled = isRecDanmuButtonEnable
+          )
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Column(Modifier.weight(.8f)) {
+            OutlinedTextField(
+              value = flvSplitSize, onValueChange = {
+                flvSplitSize = it
+                if (flvSplitSize.toLong() < 10485760) {
+                  flvSplitSizeError = true
+                  flvSplitSizeButtonEnbale = false
+                } else {
+                  flvSplitSizeError = false
+                  flvSplitSizeButtonEnbale = true
+                }
+              },
+              label = { androidx.compose.material.Text(text = "自动切片大小 (Bytes)") },
+              isError = flvSplitSizeError
+            )
+          }
+          Column(Modifier.weight(.2f)) {
+            TextButton(
+              onClick = {
+                flvSplitSizeButtonEnbale = false
+                logger.debug("[ServerConfigCard] 开始修改自动切片大小")
+                systemConfigScope.launch(Dispatchers.IO) {
+                  try {
+                    logger.debug("[ServerConfigCard] 准备发送修改自动切片大小请求")
+                    systemCmdWithLong("Config_FileSplit", "state", flvSplitSize.toLong())
+                    logger.info("[ServerConfigCard] 修改自动切片大小成功")
+                  } catch (e: APIError) {
+                    logger.warn("[ServerConfigCard] 修改自动切片大小发生API错误 -> ${e.code}")
+                  } catch (e: Exception) {
+                    logger.warn("[ServerConfigCard] 修改自动切片大小发生预料外错误 -> ${e.message}")
+                  }
+                  flvSplitSizeButtonEnbale = true
+                }
+              },
+              enabled = flvSplitSizeButtonEnbale
+            ) {
+              Text(text = "保存")
             }
           }
         }
