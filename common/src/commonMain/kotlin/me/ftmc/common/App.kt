@@ -11,8 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,9 +35,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import me.ftmc.common.pages.IndexPage
+import me.ftmc.common.pages.LogPage
 import me.ftmc.common.pages.StatusPage
 import me.ftmc.common.pages.addFakeRoom
-import org.slf4j.LoggerFactory
 
 val screenTypeChangeWidth = 800.dp
 var currentScreenWidth = screenTypeChangeWidth
@@ -44,7 +45,7 @@ var currentScreenWidth = screenTypeChangeWidth
 enum class TabList(val tabName: String, val tabIcon: ImageVector) {
   Index("首页", Icons.Filled.Home),
   Status("状态", Icons.Filled.PieChart),
-  Settings("设置", Icons.Filled.Settings),
+  Log("日志", Icons.Filled.ListAlt),
   About("关于", Icons.Filled.Info)
 }
 
@@ -62,11 +63,12 @@ enum class ConnectStatus(val statusString: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App() {
-  val logger = remember { LoggerFactory.getLogger("Main") }
   var tabSelected by remember { mutableStateOf(TabList.Index) }
+  val appLogBuket = rememberSaveable { mutableListOf<LogObject>() }
+  LocalLogger.loggerBuket = appLogBuket
   LaunchedEffect(true) {
     loadConfig()
-    logger.info("[Main] 启动成功")
+    LocalLogger.info("[Main] 启动成功")
   }
   Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text(tabSelected.tabName) }) }, bottomBar = {
     AnimatedVisibility(currentScreenWidth < screenTypeChangeWidth) {
@@ -74,7 +76,7 @@ fun App() {
         TabList.values().forEach {
           NavigationRailItem(selected = tabSelected == it, onClick = {
             tabSelected = it
-            logger.debug("[Main] 切换至 ${it.tabName} 标签页")
+            LocalLogger.debug("[Main] 切换至 ${it.tabName} 标签页")
           }, icon = { Icon(it.tabIcon, it.tabName) }, label = { Text(it.tabName) })
         }
       }
@@ -84,7 +86,7 @@ fun App() {
       enter = slideIn { IntOffset(it.width / 2, it.height / 2) } + fadeIn(),
       exit = slideOut { IntOffset(it.width / 2, it.height / 2) } + fadeOut()) {
       FloatingActionButton(onClick = {
-        logger.debug("[Main] 点击增加房间按钮")
+        LocalLogger.debug("[Main] 点击增加房间按钮")
         addFakeRoom()
       }) {
         Icon(Icons.Filled.Add, "添加房间")
@@ -105,6 +107,7 @@ fun App() {
       when (tabSelected) {
         TabList.Index -> IndexPage()
         TabList.Status -> StatusPage()
+        TabList.Log -> LogPage(appLogBuket)
       }
     }
   }

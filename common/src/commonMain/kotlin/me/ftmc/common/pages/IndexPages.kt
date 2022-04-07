@@ -51,6 +51,7 @@ import me.ftmc.common.ConfigKeys.IsAutoTranscod
 import me.ftmc.common.ConfigKeys.IsRecDanmu
 import me.ftmc.common.ConfigKeys.values
 import me.ftmc.common.ConnectStatus
+import me.ftmc.common.LocalLogger
 import me.ftmc.common.Server
 import me.ftmc.common.accessKeyId
 import me.ftmc.common.accessKeySecret
@@ -72,11 +73,11 @@ import org.slf4j.LoggerFactory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IndexPage() {
-  val logger = remember { LoggerFactory.getLogger("IndexPage") }
+  remember { LoggerFactory.getLogger("IndexPage") }
   var connectStatus by remember { mutableStateOf(ConnectStatus.DISCONNECT) }
   var apiUsable by remember { mutableStateOf(true) }
   LaunchedEffect(true) {
-    logger.info("[Index] 页面加载")
+    LocalLogger.info("[Index] 页面加载")
   }
   Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
     Column(
@@ -155,10 +156,10 @@ private fun ConnectStatusCard(
   connectAddExpandedUpdater: (Boolean) -> Unit,
   connectSelectExpandedUpdater: (Boolean) -> Unit
 ) {
-  val logger = remember { LoggerFactory.getLogger("ConnectStatusCard") }
+  remember { LoggerFactory.getLogger("ConnectStatusCard") }
   OutlinedCard(modifier = Modifier.fillMaxWidth()) {
     LaunchedEffect(true) {
-      logger.info("[ConnectStatusCard] 卡片加载")
+      LocalLogger.info("[ConnectStatusCard] 卡片加载")
     }
     var ddtvCoreVersion by remember { mutableStateOf("") }
     var webCoreVersion by remember { mutableStateOf("") }
@@ -175,10 +176,10 @@ private fun ConnectStatusCard(
             else -> ConnectStatus.UNKNOWN_ERROR
           }
           connectStatusUpdater(tempConnectStatus)
-          logger.warn("[ConnectStatusCard] 服务器返回状态 ${tempConnectStatus.statusString}")
+          LocalLogger.warn("[ConnectStatusCard] 服务器返回状态 ${tempConnectStatus.statusString}")
         } else {
           connectStatusUpdater(ConnectStatus.NET_ERROR)
-          logger.warn("[ConnectStatusCard] 可能存在网络错误")
+          LocalLogger.warn("[ConnectStatusCard] 可能存在网络错误")
         }
         apiUsableUpdater(false)
       }.collect {
@@ -186,7 +187,7 @@ private fun ConnectStatusCard(
         webCoreVersion = it.os_Info.WebCore_Ver
         dotnetVersion = it.os_Info.AppCore_Ver
         connectStatusUpdater(ConnectStatus.CONNECT)
-        logger.debug("[ConnectStatusCard] 心跳响应成功")
+        LocalLogger.debug("[ConnectStatusCard] 心跳响应成功")
       }
     }
     Column(modifier = Modifier.padding(16.dp)) {
@@ -198,7 +199,7 @@ private fun ConnectStatusCard(
         ) {
           TextButton(onClick = {
             apiUsableUpdater(true)
-            logger.debug("[ConnectStatusCard] 重试连接")
+            LocalLogger.debug("[ConnectStatusCard] 重试连接")
           }) {
             Text(text = "重试")
           }
@@ -235,10 +236,10 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    val logger = remember { LoggerFactory.getLogger("ConnectSelectCard") }
+    remember { LoggerFactory.getLogger("ConnectSelectCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       LaunchedEffect(true) {
-        logger.info("[ConnectSelectCard] 卡片加载")
+        LocalLogger.info("[ConnectSelectCard] 卡片加载")
       }
       val tempSeverList = remember { mutableStateListOf<Server>() }
       LaunchedEffect(true) {
@@ -261,7 +262,7 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
                 accessKeySecret = rowServer.accessKeySecret
                 saveConfig()
                 settingSaveUpdater()
-                logger.debug("[ConnectSelectCard] 服务器已选择 -> ${rowServer.url}")
+                LocalLogger.debug("[ConnectSelectCard] 服务器已选择 -> ${rowServer.url}")
               }) {
                 Text(text = "选择")
               }
@@ -278,7 +279,7 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
                   accessKeyId = ""
                   accessKeySecret = ""
                   saveConfig()
-                  logger.debug("[ConnectSelectCard] 服务器已删除 -> ${rowServer.url}")
+                  LocalLogger.debug("[ConnectSelectCard] 服务器已删除 -> ${rowServer.url}")
                 }
               }) {
                 Text(text = "删除")
@@ -300,10 +301,10 @@ private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    val logger = remember { LoggerFactory.getLogger("ConnectAddCard") }
+    remember { LoggerFactory.getLogger("ConnectAddCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       LaunchedEffect(true)
-      { logger.info("[ConnectAddCard] 卡片加载") }
+      { LocalLogger.info("[ConnectAddCard] 卡片加载") }
       var tempURL by remember { mutableStateOf("") }
       var tempAccessKeyId by remember { mutableStateOf("") }
       var tempAccessKeySecret by remember { mutableStateOf("") }
@@ -318,7 +319,7 @@ private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -
             for (server in serverList) {
               if (server.url == it) {
                 serverExist = true
-                logger.warn("检测到重复服务器")
+                LocalLogger.warn("检测到重复服务器")
                 return@OutlinedTextField
               }
               serverExist = false
@@ -343,7 +344,7 @@ private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -
           accessKeySecret = tempAccessKeySecret
           saveConfig()
           settingSaveUpdater()
-          logger.info("[ConnectAddCard] 配置保存成功")
+          LocalLogger.info("[ConnectAddCard] 配置保存成功")
         }, enabled = !serverExist) {
           Text(text = "保存")
         }
@@ -360,10 +361,10 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    val logger = remember { LoggerFactory.getLogger("LoginInfoCard") }
+    remember { LoggerFactory.getLogger("LoginInfoCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       LaunchedEffect(true) {
-        logger.info("[LoginInfoCard] 卡片加载")
+        LocalLogger.info("[LoginInfoCard] 卡片加载")
       }
       var loginStatus by remember { mutableStateOf(false) }
       var qrCodeExpanded by remember { mutableStateOf(false) }
@@ -373,7 +374,7 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
           if (!loginStatus) {
             qrCodeExpanded = true
           }
-          logger.debug("[LoginInfoCard] 心跳响应成功")
+          LocalLogger.debug("[LoginInfoCard] 心跳响应成功")
         }
       }
       Column(modifier = Modifier.padding(16.dp)) {
@@ -429,10 +430,10 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
     enter = expandIn(expandFrom = Alignment.TopCenter) + fadeIn(),
     exit = shrinkOut(shrinkTowards = Alignment.TopCenter) + fadeOut()
   ) {
-    val logger = remember { LoggerFactory.getLogger("ServerConfigCard") }
+    remember { LoggerFactory.getLogger("ServerConfigCard") }
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       LaunchedEffect(true) {
-        logger.info("[ServerConfigCard] 卡片加载")
+        LocalLogger.info("[ServerConfigCard] 卡片加载")
       }
       var isAutoTranscod by remember { mutableStateOf(false) }
       var autoTranscodeButtonEnable by remember { mutableStateOf(false) }
@@ -462,7 +463,7 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
                 else -> {}
               }
             } catch (e: ArrayIndexOutOfBoundsException) {
-              logger.warn("[ServerConfigCard] 不正确的 Config Key -> ${config.Key}")
+              LocalLogger.warn("[ServerConfigCard] 不正确的 Config Key -> ${config.Key}")
             }
           }
         }
@@ -474,17 +475,17 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
           Checkbox(
             checked = isAutoTranscod, onCheckedChange = {
               autoTranscodeButtonEnable = false
-              logger.debug("[ServerConfigCard] 开始修改自动转码")
+              LocalLogger.debug("[ServerConfigCard] 开始修改自动转码")
               systemConfigScope.launch(Dispatchers.IO) {
                 try {
-                  logger.debug("[ServerConfigCard] 准备发送修改自动转码请求")
+                  LocalLogger.debug("[ServerConfigCard] 准备发送修改自动转码请求")
                   systemCmdWithBoolean("Config_Transcod", "state", it)
                   isAutoTranscod = it
-                  logger.info("[ServerConfigCard] 修改自动转码成功")
+                  LocalLogger.info("[ServerConfigCard] 修改自动转码成功")
                 } catch (e: APIError) {
-                  logger.warn("[ServerConfigCard] 修改自动转码发生API错误 -> ${e.code}")
+                  LocalLogger.warn("[ServerConfigCard] 修改自动转码发生API错误 -> ${e.code}")
                 } catch (e: Exception) {
-                  logger.warn("[ServerConfigCard] 修改自动转码发生预料外错误 -> ${e.message}")
+                  LocalLogger.warn("[ServerConfigCard] 修改自动转码发生预料外错误 -> ${e.message}")
                 }
                 autoTranscodeButtonEnable = true
               }
@@ -495,17 +496,17 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
           Checkbox(
             checked = isRecDanmu, onCheckedChange = {
               isRecDanmuButtonEnable = false
-              logger.debug("[ServerConfigCard] 开始修改录制弹幕")
+              LocalLogger.debug("[ServerConfigCard] 开始修改录制弹幕")
               systemConfigScope.launch(Dispatchers.IO) {
                 try {
-                  logger.debug("[ServerConfigCard] 准备发送修改录制弹幕请求")
+                  LocalLogger.debug("[ServerConfigCard] 准备发送修改录制弹幕请求")
                   systemCmdWithBoolean("Config_DanmuRec", "state", it)
                   isRecDanmu = it
-                  logger.info("[ServerConfigCard] 修改录制弹幕成功")
+                  LocalLogger.info("[ServerConfigCard] 修改录制弹幕成功")
                 } catch (e: APIError) {
-                  logger.warn("[ServerConfigCard] 修改录制弹幕发生API错误 -> ${e.code}")
+                  LocalLogger.warn("[ServerConfigCard] 修改录制弹幕发生API错误 -> ${e.code}")
                 } catch (e: Exception) {
-                  logger.warn("[ServerConfigCard] 修改录制弹幕发生预料外错误 -> ${e.message}")
+                  LocalLogger.warn("[ServerConfigCard] 修改录制弹幕发生预料外错误 -> ${e.message}")
                 }
                 isRecDanmuButtonEnable = true
               }
@@ -534,16 +535,16 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
             TextButton(
               onClick = {
                 flvSplitSizeButtonEnbale = false
-                logger.debug("[ServerConfigCard] 开始修改自动切片大小")
+                LocalLogger.debug("[ServerConfigCard] 开始修改自动切片大小")
                 systemConfigScope.launch(Dispatchers.IO) {
                   try {
-                    logger.debug("[ServerConfigCard] 准备发送修改自动切片大小请求")
+                    LocalLogger.debug("[ServerConfigCard] 准备发送修改自动切片大小请求")
                     systemCmdWithLong("Config_FileSplit", "state", flvSplitSize.toLong())
-                    logger.info("[ServerConfigCard] 修改自动切片大小成功")
+                    LocalLogger.info("[ServerConfigCard] 修改自动切片大小成功")
                   } catch (e: APIError) {
-                    logger.warn("[ServerConfigCard] 修改自动切片大小发生API错误 -> ${e.code}")
+                    LocalLogger.warn("[ServerConfigCard] 修改自动切片大小发生API错误 -> ${e.code}")
                   } catch (e: Exception) {
-                    logger.warn("[ServerConfigCard] 修改自动切片大小发生预料外错误 -> ${e.message}")
+                    LocalLogger.warn("[ServerConfigCard] 修改自动切片大小发生预料外错误 -> ${e.message}")
                   }
                   flvSplitSizeButtonEnbale = true
                 }

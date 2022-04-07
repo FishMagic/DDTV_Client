@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.ftmc.common.APIError
+import me.ftmc.common.LocalLogger
 import me.ftmc.common.RecRecordingInfoLiteResponse
 import me.ftmc.common.RoomAllInfoResponse
 import me.ftmc.common.StringDataResponse
@@ -27,24 +28,24 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 
 val roomAllInfoFlow = flow {
-  val logger = LoggerFactory.getLogger("roomAllInfoFlow")
+  LoggerFactory.getLogger("roomAllInfoFlow")
   val cmd = "Room_AllInfo"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
       throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
-    logger.debug("[roomAllInfoFlow] 发送获取房间信息请求")
+    LocalLogger.debug("[roomAllInfoFlow] 发送获取房间信息请求")
     val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
       append("accesskeyid", accessKeyId)
       append("cmd", cmd)
       append("time", nowTime.toString())
       append("sig", getSig(cmd, nowTime))
     })
-    logger.debug("[roomAllInfoFlow] 房间信息响应成功")
+    LocalLogger.debug("[roomAllInfoFlow] 房间信息响应成功")
     try {
       val responseData: RoomAllInfoResponse = httpResponse.receive()
-      logger.debug("[roomAllInfoFlow] 房间信息解析成功")
+      LocalLogger.debug("[roomAllInfoFlow] 房间信息解析成功")
       emit(responseData.data)
     } catch (_: NoTransformationFoundException) {
       val errorResponse: String = httpResponse.receive()
@@ -55,41 +56,41 @@ val roomAllInfoFlow = flow {
     delay(10000L)
   }
 }.catch {
-  val logger = LoggerFactory.getLogger("roomAllInfoFlow")
+  LoggerFactory.getLogger("roomAllInfoFlow")
   if (it is RedirectResponseException) {
-    logger.warn("[roomAllInfoFlow] 发现302重定向")
+    LocalLogger.warn("[roomAllInfoFlow] 发现302重定向")
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
-      logger.debug("[roomAllInfoFlow] 发送获取错误信息请求")
+      LocalLogger.debug("[roomAllInfoFlow] 发送获取错误信息请求")
       val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
-      logger.debug("[roomAllInfoFlow] 解析错误信息成功")
+      LocalLogger.debug("[roomAllInfoFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
   } else {
-    logger.warn("[roomAllInfoFlow] 发生预料外错误 -> ${it.message}")
+    LocalLogger.warn("[roomAllInfoFlow] 发生预料外错误 -> ${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)
 
 val recordInfoFlow = flow {
-  val logger = LoggerFactory.getLogger("recordInfoFlow")
+  LoggerFactory.getLogger("recordInfoFlow")
   val cmd = "Rec_RecordingInfo_Lite"
   while (true) {
     if (url == "" || accessKeyId == "" || accessKeySecret == "") {
       throw APIError(-1)
     }
     val nowTime = Instant.now().epochSecond
-    logger.debug("[recordInfoFlow] 发送获取录制状态请求")
+    LocalLogger.debug("[recordInfoFlow] 发送获取录制状态请求")
     val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
       append("accesskeyid", accessKeyId)
       append("cmd", cmd)
       append("time", nowTime.toString())
       append("sig", getSig(cmd, nowTime))
     })
-    logger.debug("[recordInfoFlow] 录制状态响应成功")
+    LocalLogger.debug("[recordInfoFlow] 录制状态响应成功")
     try {
       val responseData: RecRecordingInfoLiteResponse = httpResponse.receive()
-      logger.debug("[recordInfoFlow] 录制状态解析成功")
+      LocalLogger.debug("[recordInfoFlow] 录制状态解析成功")
       emit(responseData.data)
     } catch (_: NoTransformationFoundException) {
       val errorResponse: String = httpResponse.receive()
@@ -100,18 +101,18 @@ val recordInfoFlow = flow {
     delay(10000L)
   }
 }.catch {
-  val logger = LoggerFactory.getLogger("recordInfoFlow")
+  LoggerFactory.getLogger("recordInfoFlow")
   if (it is RedirectResponseException) {
-    logger.warn("[recordInfoFlow] 发现302重定向")
+    LocalLogger.warn("[recordInfoFlow] 发现302重定向")
     val redirectURL = it.response.headers["Location"]
     if (redirectURL != null) {
-      logger.debug("[recordInfoFlow] 发送获取错误信息请求")
+      LocalLogger.debug("[recordInfoFlow] 发送获取错误信息请求")
       val errorResponse: StringDataResponse = httpClient.get(urlString = "$url${redirectURL}")
-      logger.debug("[recordInfoFlow] 解析错误信息成功")
+      LocalLogger.debug("[recordInfoFlow] 解析错误信息成功")
       throw APIError(errorResponse.code)
     }
   } else {
-    logger.warn("[recordInfoFlow] 发生预料外错误 -> ${it.message}")
+    LocalLogger.warn("[recordInfoFlow] 发生预料外错误 -> ${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)
