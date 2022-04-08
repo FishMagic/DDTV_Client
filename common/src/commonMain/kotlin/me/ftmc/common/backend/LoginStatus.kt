@@ -48,7 +48,7 @@ val loginStatusFlow = flow {
       if (responseData.data) {
         delay(300000L)
       } else {
-        delay(1000L)
+        break
       }
     } catch (_: NoTransformationFoundException) {
       logger.warn("[loginStatusFlow] 登录状态解析失败，尝试解析错误信息")
