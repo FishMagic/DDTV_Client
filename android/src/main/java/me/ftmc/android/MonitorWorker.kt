@@ -12,6 +12,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.backend.roomCmdRoomAllInfoData
@@ -89,6 +90,7 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
             }
           }
         }
+        delay(30000L)
       } catch (_: Exception) {
         return Result.failure()
       }
