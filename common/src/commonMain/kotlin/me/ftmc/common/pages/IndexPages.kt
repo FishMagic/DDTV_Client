@@ -594,6 +594,30 @@ private fun ClientConfigCard() {
           saveConfig()
         })
       }
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        var tempLogMaxSize by remember { mutableStateOf(LocalLogger.maxSize.toString()) }
+        Column(Modifier.weight(.8f)) {
+          OutlinedTextField(
+            value = tempLogMaxSize,
+            onValueChange = {
+              tempLogMaxSize = it.filter { char -> char.isDigit() }
+            },
+            label = { androidx.compose.material.Text(text = "日志条目上限") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+          )
+        }
+        Column(Modifier.weight(.2f)) {
+          TextButton(
+            onClick = {
+              logger.debug("[ClientConfigCard] 修改日志条目上限 -> $tempLogMaxSize")
+              LocalLogger.maxSize = tempLogMaxSize.toInt()
+              saveConfig()
+            }
+          ) {
+            Text(text = "保存")
+          }
+        }
+      }
       Text(text = "深色模式", style = MaterialTheme.typography.bodyLarge)
       Row(verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = darkMode == true, onClick = {

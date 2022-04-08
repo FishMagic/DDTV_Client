@@ -102,7 +102,8 @@ class APIError(val code: Int, val msg: String = "") : RuntimeException()
 data class ConfigClass(
   val serverList: MutableList<Server> = mutableListOf(),
   val darkMode: Boolean? = null,
-  val notification: Boolean = true
+  val notification: Boolean = true,
+  val logMaxSize: Int = 300
 )
 
 @Serializable
