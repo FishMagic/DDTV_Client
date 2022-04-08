@@ -40,7 +40,7 @@ fun main() = application {
       state = WindowState(size = DpSize(screenTypeChangeWidth, 650.dp)),
       resizable = false,
       title = "DDTV 客户端",
-      icon = painterResource("app_icon.png")
+      icon = painterResource("icon.png")
     ) {
       logger.info("[Window] 窗口加载")
       AppTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {
@@ -49,7 +49,7 @@ fun main() = application {
     }
   }
   if (!windowShow) {
-    Tray(icon = painterResource("tray_icon.png"), state = trayState, onAction = { windowShow = true }) {
+    Tray(icon = painterResource("icon.png"), state = trayState, onAction = { windowShow = true }) {
       logger.info("[Tray] 托盘区加载")
       val roomsState = remember { mutableStateMapOf<Long, MutableList<Boolean>>() }
       LaunchedEffect(true) {
