@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 var darkMode: Boolean? = null
+var notification: Boolean = true
 
 var url = ""
 var accessKeyId = ""
@@ -95,7 +96,11 @@ class APIError(val code: Int, val msg: String = "") : RuntimeException()
 
 
 @Serializable
-data class ConfigClass(val serverList: MutableList<Server>, val darkMode: Boolean?)
+data class ConfigClass(
+  val serverList: MutableList<Server> = mutableListOf(),
+  val darkMode: Boolean? = null,
+  val notification: Boolean = true
+)
 
 @Serializable
 data class Server(val url: String, val accessKeyId: String, val accessKeySecret: String, var selected: Boolean)

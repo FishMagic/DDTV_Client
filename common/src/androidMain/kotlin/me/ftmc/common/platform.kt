@@ -22,7 +22,7 @@ actual fun getPlatformName(): String {
 
 actual fun saveConfig(logger: LocalLogger) {
   logger.debug("[Android] 开始保存配置信息")
-  val configClass = ConfigClass(serverList, darkMode)
+  val configClass = ConfigClass(serverList, darkMode, notification)
   val configString = Json.encodeToString(configClass)
   with(sharedRef.edit()) {
     putString("config", configString)
@@ -54,6 +54,7 @@ actual fun loadConfig(logger: LocalLogger) {
       accessKeyId = selectedServer.accessKeyId
     }
     darkMode = configClass.darkMode
+    notification = configClass.notification
   } catch (_: Exception) {
     logger.warn("[Android] 配置文件存在问题，使用默认配置")
   }
