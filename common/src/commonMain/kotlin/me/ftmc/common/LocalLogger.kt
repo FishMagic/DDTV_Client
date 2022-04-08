@@ -16,19 +16,25 @@ class LocalLogger {
 
   @Synchronized
   fun info(message: String) {
-    backendLogger.info(message)
-    loggerBuket.add(LogObject("INFO", Instant.now().epochSecond, message))
+    synchronized(loggerBuket) {
+      backendLogger.info(message)
+      loggerBuket.add(LogObject("INFO", Instant.now().epochSecond, message))
+    }
   }
 
   @Synchronized
   fun warn(message: String) {
-    backendLogger.warn(message)
-    loggerBuket.add(LogObject("WARN", Instant.now().epochSecond, message))
+    synchronized(loggerBuket) {
+      backendLogger.warn(message)
+      loggerBuket.add(LogObject("WARN", Instant.now().epochSecond, message))
+    }
   }
 
   @Synchronized
   fun debug(message: String) {
-    backendLogger.debug(message)
-    loggerBuket.add(LogObject("DEBUG", Instant.now().epochSecond, message))
+    synchronized(loggerBuket) {
+      backendLogger.debug(message)
+      loggerBuket.add(LogObject("DEBUG", Instant.now().epochSecond, message))
+    }
   }
 }
