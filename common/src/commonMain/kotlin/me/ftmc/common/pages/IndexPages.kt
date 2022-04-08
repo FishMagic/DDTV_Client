@@ -531,16 +531,21 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
           Column(Modifier.weight(.8f)) {
-            OutlinedTextField(value = flvSplitSize, onValueChange = {
-              flvSplitSize = it
-              if (flvSplitSize.toLong() < 10485760) {
-                flvSplitSizeError = true
-                flvSplitSizeButtonEnbale = false
-              } else {
-                flvSplitSizeError = false
-                flvSplitSizeButtonEnbale = true
-              }
-            }, label = { androidx.compose.material.Text(text = "自动切片大小 (Bytes)") }, isError = flvSplitSizeError
+            OutlinedTextField(
+              value = flvSplitSize,
+              onValueChange = {
+                flvSplitSize = it.filter { char -> char.isDigit() }
+                if (flvSplitSize.toLong() < 10485760) {
+                  flvSplitSizeError = true
+                  flvSplitSizeButtonEnbale = false
+                } else {
+                  flvSplitSizeError = false
+                  flvSplitSizeButtonEnbale = true
+                }
+              },
+              label = { androidx.compose.material.Text(text = "自动切片大小 (Bytes)") },
+              isError = flvSplitSizeError,
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
           }
           Column(Modifier.weight(.2f)) {
