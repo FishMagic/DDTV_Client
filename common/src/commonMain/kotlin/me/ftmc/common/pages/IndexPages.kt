@@ -41,6 +41,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
@@ -65,6 +68,7 @@ import me.ftmc.common.byteArrayToImageBitmap
 import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.darkMode
 import me.ftmc.common.getRequestURL
+import me.ftmc.common.getSig
 import me.ftmc.common.httpClient
 import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.notification
@@ -72,6 +76,7 @@ import me.ftmc.common.saveConfig
 import me.ftmc.common.screenTypeChangeWidth
 import me.ftmc.common.serverList
 import me.ftmc.common.url
+import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -372,12 +377,13 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
       LaunchedEffect(true) {
         logger.info("[LoginInfoCard] 卡片加载")
       }
+      val loginStatusCardScope = rememberCoroutineScope()
       var loginCode by remember { mutableStateOf(0) }
       var qrCodeExpanded by remember { mutableStateOf(false) }
-      LaunchedEffect(true) {
+      LaunchedEffect(loginCode) {
         loginStateFlow.collect {
           loginCode = it.LoginState
-          qrCodeExpanded = it.LoginState != 1
+          qrCodeExpanded = it.LoginState != 1 && it.LoginState != 2
           logger.debug("[LoginInfoCard] 心跳响应成功 -> $loginCode")
         }
       }
@@ -400,6 +406,38 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
           ) {
             TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
               Text(text = "登录二维码")
+            }
+          }
+          AnimatedVisibility(
+            loginCode == 1 || loginCode == 2, enter = fadeIn(), exit = fadeOut()
+          ) {
+            var logoutButtonEnable by remember { mutableStateOf(true) }
+            TextButton(onClick = {
+              logger.info("[LoginInfoCard] 开始退出登录")
+              logoutButtonEnable = false
+              loginStatusCardScope.launch(Dispatchers.IO) {
+                try {
+                  logger.debug("[LoginInfoCard] 准备发送重置登录状态请求")
+                  val cmd = "Login_Reset"
+                  val nowTime = Instant.now().epochSecond
+                  val httpResponse: HttpResponse =
+                    httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
+                      append("accesskeyid", accessKeyId)
+                      append("cmd", cmd)
+                      append("time", nowTime.toString())
+                      append("sig", getSig(cmd, nowTime))
+                    })
+                  logger.info("[LoginInfoCard] 重置登录状态登录成功")
+                } catch (e: APIError) {
+                  logger.warn("[LoginInfoCard] 重置登录状态发生API错误 -> ${e.code}")
+                } catch (e: Exception) {
+                  logger.warn("[LoginInfoCard] 重置登录状态发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                }
+                logoutButtonEnable = true
+                loginCode = 3
+              }
+            }, enabled = logoutButtonEnable) {
+              Text(text = "重新登录")
             }
           }
         }
