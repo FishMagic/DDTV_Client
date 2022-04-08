@@ -597,7 +597,7 @@ private fun ClientConfigCard() {
       Text(text = "深色模式", style = MaterialTheme.typography.bodyLarge)
       Row(verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = darkMode == true, onClick = {
-          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> ${true}")
+          logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${true}")
           darkMode = true
           saveConfig()
         })
@@ -605,7 +605,7 @@ private fun ClientConfigCard() {
       }
       Row(verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = darkMode == false, onClick = {
-          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> ${false}")
+          logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${false}")
           darkMode = false
           saveConfig()
         })
@@ -613,7 +613,7 @@ private fun ClientConfigCard() {
       }
       Row(verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = darkMode == null, onClick = {
-          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> ${null}")
+          logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${null}")
           darkMode = null
           saveConfig()
         })
