@@ -18,7 +18,7 @@ import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.screenTypeChangeWidth
 
-private const val version = "1.0.0 Alpha"
+private const val version = "1.1.0 Alpha"
 
 @Composable
 fun AboutPage() {
@@ -32,6 +32,8 @@ fun AboutPage() {
       Text(text = "DDTV客户端", style = MaterialTheme.typography.headlineLarge)
       Text(text = "基于官方WEB API", style = MaterialTheme.typography.headlineMedium)
       Text(text = "Version: $version", style = MaterialTheme.typography.bodyLarge)
+      Text(text = "由 Laevatein Scarlet (FishMagic) 编译", style = MaterialTheme.typography.bodySmall)
+      Text(text = "发行版使用 CC-BY-NC-SA 3.0 许可证发行", style = MaterialTheme.typography.bodySmall)
       if (currentScreenWidth >= screenTypeChangeWidth) {
         Spacer(Modifier.height(120.dp))
       } else {
