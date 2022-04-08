@@ -326,8 +326,8 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
       var liveInfoExpanded by remember { mutableStateOf(false) }
       Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "${room.username} (${room.uid})", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "${room.title} (${room.roomId})", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "${room.username} (${room.uid})", style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+        Text(text = "${room.title} (${room.roomId})", style = MaterialTheme.typography.bodyMedium, maxLines = 1)
         Row(verticalAlignment = Alignment.CenterVertically) {
           Text(text = "开播状态：", style = MaterialTheme.typography.bodySmall)
           TextButton(
