@@ -71,7 +71,7 @@ fun App() {
   var tabSelected by rememberSaveable { mutableStateOf(TabList.Index) }
   val logger = remember { LocalLogger() }
   LaunchedEffect(true) {
-    loadConfig(logger)
+    loadConfig()
     logger.info("[Main] 启动成功")
   }
   val currentPrimaryColor = MaterialTheme.colorScheme.primary

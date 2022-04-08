@@ -17,7 +17,8 @@ actual fun getPlatformName(): String {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-actual fun saveConfig(logger: LocalLogger) {
+actual fun saveConfig() {
+  val logger = LocalLogger()
   logger.debug("[Desktop] 开始保存配置信息")
   val configClass = ConfigClass(serverList, darkMode, notification)
   val file = File("config.json")
@@ -38,7 +39,8 @@ actual fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-actual fun loadConfig(logger: LocalLogger) {
+actual fun loadConfig() {
+  val logger = LocalLogger()
   logger.debug("[Desktop] 开始加载配置文件")
   val file = File("config.json")
   logger.debug("[Desktop] 文件打开成功")

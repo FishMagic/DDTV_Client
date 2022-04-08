@@ -262,7 +262,7 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
                 url = rowServer.url
                 accessKeyId = rowServer.accessKeyId
                 accessKeySecret = rowServer.accessKeySecret
-                saveConfig(logger)
+                saveConfig()
                 settingSaveUpdater()
                 logger.debug("[ConnectSelectCard] 服务器已选择 -> ${rowServer.url}")
               }) {
@@ -280,7 +280,7 @@ private fun ConnectSelectCard(connectSelectExpanded: Boolean, settingSaveUpdater
                   url = ""
                   accessKeyId = ""
                   accessKeySecret = ""
-                  saveConfig(logger)
+                  saveConfig()
                   logger.debug("[ConnectSelectCard] 服务器已删除 -> ${rowServer.url}")
                 }
               }) {

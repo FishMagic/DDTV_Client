@@ -20,7 +20,8 @@ actual fun getPlatformName(): String {
   return "Android"
 }
 
-actual fun saveConfig(logger: LocalLogger) {
+actual fun saveConfig() {
+  val logger = LocalLogger()
   logger.debug("[Android] 开始保存配置信息")
   val configClass = ConfigClass(serverList, darkMode, notification)
   val configString = Json.encodeToString(configClass)
@@ -35,7 +36,8 @@ actual fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap {
   return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap()
 }
 
-actual fun loadConfig(logger: LocalLogger) {
+actual fun loadConfig() {
+  val logger = LocalLogger()
   logger.debug("[Android] 开始加载配置信息")
   val configString = sharedRef.getString("config", "") ?: ""
   try {
