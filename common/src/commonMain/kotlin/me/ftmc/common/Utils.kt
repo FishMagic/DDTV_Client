@@ -1,5 +1,8 @@
 package me.ftmc.common
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.ktor.client.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
@@ -11,8 +14,8 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-var darkMode: Boolean? = null
-var notification: Boolean = true
+var darkMode: Boolean? by mutableStateOf(null)
+var notification: Boolean by mutableStateOf(true)
 
 var url = ""
 var accessKeyId = ""

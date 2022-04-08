@@ -21,6 +21,7 @@ import me.ftmc.common.App
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.backend.roomAllInfoFlow
 import me.ftmc.common.darkMode
+import me.ftmc.common.notification
 import me.ftmc.common.screenTypeChangeWidth
 
 fun main() = application {
@@ -29,7 +30,13 @@ fun main() = application {
   val logger = remember { LocalLogger() }
   if (windowShow) {
     Window(
-      onCloseRequest = { windowShow = false },
+      onCloseRequest = {
+        if (notification) {
+          windowShow = false
+        } else {
+          exitApplication()
+        }
+      },
       state = WindowState(size = DpSize(screenTypeChangeWidth, 650.dp)),
       resizable = false,
       title = "DDTV 客户端",

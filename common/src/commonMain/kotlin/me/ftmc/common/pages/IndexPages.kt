@@ -24,6 +24,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -62,9 +63,11 @@ import me.ftmc.common.backend.systemConfigFlow
 import me.ftmc.common.backend.systemInfoFlow
 import me.ftmc.common.byteArrayToImageBitmap
 import me.ftmc.common.currentScreenWidth
+import me.ftmc.common.darkMode
 import me.ftmc.common.getRequestURL
 import me.ftmc.common.httpClient
 import me.ftmc.common.navigationBarsHeightModifier
+import me.ftmc.common.notification
 import me.ftmc.common.saveConfig
 import me.ftmc.common.screenTypeChangeWidth
 import me.ftmc.common.serverList
@@ -82,7 +85,7 @@ fun IndexPage() {
   Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
     Column(
       modifier = if (currentScreenWidth >= screenTypeChangeWidth) {
-        Modifier.width(350.dp).padding(start = 16.dp)
+        Modifier.width(350.dp).padding(start = 16.dp, bottom = 16.dp)
       } else {
         Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp)
       }.verticalScroll(rememberScrollState())
@@ -128,6 +131,8 @@ fun IndexPage() {
         }
         ServerConfigCard(connectStatus)
       }
+      Spacer(Modifier.height(8.dp))
+      ClientConfigCard()
       if (currentScreenWidth < screenTypeChangeWidth) {
         Spacer(Modifier.height(90.dp))
         Spacer(Modifier.navigationBarsHeightModifier())
@@ -343,7 +348,7 @@ private fun ConnectAddCard(connectAddExpanded: Boolean, settingSaveUpdater: () -
           url = tempURL
           accessKeyId = tempAccessKeyId
           accessKeySecret = tempAccessKeySecret
-          saveConfig(logger)
+          saveConfig()
           settingSaveUpdater()
           logger.info("[ConnectAddCard] 配置保存成功")
         }, enabled = !serverExist) {
@@ -553,6 +558,53 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
             }
           }
         }
+      }
+    }
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ClientConfigCard() {
+  val logger = remember { LocalLogger() }
+  OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+    LaunchedEffect(true) {
+      logger.info("[ClientConfigCard] 卡片加载")
+    }
+    Column(modifier = Modifier.padding(16.dp)) {
+      Text(text = "客户端设置", style = MaterialTheme.typography.headlineSmall)
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "后台通知推送", style = MaterialTheme.typography.bodySmall)
+        Checkbox(checked = notification, onCheckedChange = {
+          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> $it")
+          notification = it
+          saveConfig()
+        })
+      }
+      Text(text = "深色模式", style = MaterialTheme.typography.bodyLarge)
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected = darkMode == true, onClick = {
+          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> ${true}")
+          darkMode = true
+          saveConfig()
+        })
+        Text("开", style = MaterialTheme.typography.bodySmall)
+      }
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected = darkMode == false, onClick = {
+          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> ${false}")
+          darkMode = false
+          saveConfig()
+        })
+        Text("关", style = MaterialTheme.typography.bodySmall)
+      }
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected = darkMode == null, onClick = {
+          logger.debug("[ClientConfigCard] 修改后台通知推送状态 -> ${null}")
+          darkMode = null
+          saveConfig()
+        })
+        Text("跟随系统", style = MaterialTheme.typography.bodySmall)
       }
     }
   }
