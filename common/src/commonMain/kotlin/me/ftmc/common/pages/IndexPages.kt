@@ -502,7 +502,7 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
                 } catch (e: APIError) {
                   logger.warn("[ServerConfigCard] 修改自动转码发生API错误 -> ${e.code}")
                 } catch (e: Exception) {
-                  logger.warn("[ServerConfigCard] 修改自动转码发生预料外错误 -> ${e.message}")
+                  logger.warn("[ServerConfigCard] 修改自动转码发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
                 }
                 autoTranscodeButtonEnable = true
               }
@@ -522,7 +522,7 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
                 } catch (e: APIError) {
                   logger.warn("[ServerConfigCard] 修改录制弹幕发生API错误 -> ${e.code}")
                 } catch (e: Exception) {
-                  logger.warn("[ServerConfigCard] 修改录制弹幕发生预料外错误 -> ${e.message}")
+                  logger.warn("[ServerConfigCard] 修改录制弹幕发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
                 }
                 isRecDanmuButtonEnable = true
               }
@@ -556,7 +556,7 @@ private fun ServerConfigCard(connectStatus: ConnectStatus) {
                   } catch (e: APIError) {
                     logger.warn("[ServerConfigCard] 修改自动切片大小发生API错误 -> ${e.code}")
                   } catch (e: Exception) {
-                    logger.warn("[ServerConfigCard] 修改自动切片大小发生预料外错误 -> ${e.message}")
+                    logger.warn("[ServerConfigCard] 修改自动切片大小发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
                   }
                   flvSplitSizeButtonEnbale = true
                 }

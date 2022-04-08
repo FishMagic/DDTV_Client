@@ -51,7 +51,7 @@ suspend fun systemCmdWithBoolean(cmd: String, key: String, value: Boolean): Stri
       throw APIError(errorResponse.code)
     }
   } catch (e: Exception) {
-    logger.warn("[systemCmdWithBoolean] 发生预料外错误 -> ${e.message}")
+    logger.warn("[systemCmdWithBoolean] 发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
     throw e
   }
   logger.warn("[systemCmdWithBoolean] 操作失败")
@@ -92,7 +92,7 @@ suspend fun systemCmdWithLong(cmd: String, key: String, value: Long): String {
       throw APIError(errorResponse.code)
     }
   } catch (e: Exception) {
-    logger.warn("[systemCmdWithLong] 发生预料外错误 -> ${e.message}")
+    logger.warn("[systemCmdWithLong] 发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
     throw e
   }
   logger.warn("[systemCmdWithLong] 操作失败")

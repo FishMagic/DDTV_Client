@@ -66,7 +66,7 @@ val roomAllInfoFlow = flow {
       throw APIError(errorResponse.code)
     }
   } else {
-    logger.warn("[roomAllInfoFlow] 发生预料外错误 -> ${it.message}")
+    logger.warn("[roomAllInfoFlow] 发生预料外错误 -> ${it.javaClass.name} ,${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)
@@ -111,7 +111,7 @@ val recordInfoFlow = flow {
       throw APIError(errorResponse.code)
     }
   } else {
-    logger.warn("[recordInfoFlow] 发生预料外错误 -> ${it.message}")
+    logger.warn("[recordInfoFlow] 发生预料外错误 -> ${it.javaClass.name} ,${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)

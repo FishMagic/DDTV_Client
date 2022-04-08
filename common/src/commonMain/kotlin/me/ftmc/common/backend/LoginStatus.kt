@@ -122,7 +122,7 @@ val loginStateFlow = flow {
       throw APIError(errorResponse.code)
     }
   } else {
-    logger.warn("[loginStateFlow] 发生预料外错误 -> ${it.message}")
+    logger.warn("[loginStateFlow] 发生预料外错误 -> ${it.javaClass.name} ,${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)

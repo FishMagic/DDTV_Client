@@ -66,7 +66,7 @@ val systemConfigFlow = flow {
       throw APIError(errorResponse.code)
     }
   } else {
-    logger.warn("[systemConfigFlow] 发生预料外错误 -> ${it.message}")
+    logger.warn("[systemConfigFlow] 发生预料外错误 -> ${it.javaClass.name} ,${it.message}")
     throw it
   }
 }.flowOn(Dispatchers.IO)
