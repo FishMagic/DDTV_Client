@@ -56,7 +56,7 @@ import me.ftmc.common.LocalLogger
 import me.ftmc.common.Server
 import me.ftmc.common.accessKeyId
 import me.ftmc.common.accessKeySecret
-import me.ftmc.common.backend.loginStatusFlow
+import me.ftmc.common.backend.loginStateFlow
 import me.ftmc.common.backend.systemCmdWithBoolean
 import me.ftmc.common.backend.systemCmdWithLong
 import me.ftmc.common.backend.systemConfigFlow
@@ -372,23 +372,31 @@ private fun LoginInfoCard(connectStatus: ConnectStatus) {
       LaunchedEffect(true) {
         logger.info("[LoginInfoCard] 卡片加载")
       }
-      var loginStatus by remember { mutableStateOf(false) }
+      var loginCode by remember { mutableStateOf(0) }
       var qrCodeExpanded by remember { mutableStateOf(false) }
       LaunchedEffect(true) {
-        loginStatusFlow.collect {
-          loginStatus = it
-          if (!loginStatus) {
-            qrCodeExpanded = true
-          }
-          logger.debug("[LoginInfoCard] 心跳响应成功")
+        loginStateFlow.collect {
+          loginCode = it.LoginState
+          qrCodeExpanded = it.LoginState != 1
+          logger.debug("[LoginInfoCard] 心跳响应成功 -> $loginCode")
         }
       }
       Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Bilibili 登录", style = MaterialTheme.typography.headlineSmall)
         Row(verticalAlignment = Alignment.CenterVertically) {
-          Text(text = "登录状态：${if (loginStatus) "已登录" else "未登录"}", style = MaterialTheme.typography.bodySmall)
+          Text(
+            text = "登录状态：${
+              when (loginCode) {
+                0 -> "未登录"
+                1 -> "已登陆"
+                2 -> "登陆失效"
+                3 -> "登陆中"
+                else -> "未知"
+              }
+            }", style = MaterialTheme.typography.bodySmall
+          )
           AnimatedVisibility(
-            !loginStatus, enter = fadeIn(), exit = fadeOut()
+            loginCode != 1, enter = fadeIn(), exit = fadeOut()
           ) {
             TextButton(onClick = { qrCodeExpanded = !qrCodeExpanded }) {
               Text(text = "登录二维码")

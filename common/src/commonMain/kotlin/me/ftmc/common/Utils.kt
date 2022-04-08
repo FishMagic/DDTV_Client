@@ -298,3 +298,16 @@ data class DownloadedFileInfo(
   val Mp4File: String?,
   val SCFile: String?
 )
+
+@Serializable
+data class LoginStateResponse(
+  val cmd: String,
+  val code: Int,
+  val `data`: LoginStateData,
+  val massage: String
+)
+
+@Serializable
+data class LoginStateData(
+  val LoginState: Int
+)
