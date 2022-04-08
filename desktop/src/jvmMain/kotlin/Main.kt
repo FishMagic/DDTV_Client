@@ -46,6 +46,7 @@ fun main() = application {
       AppTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {
         App()
       }
+      logger.info("[Window] 窗口加载完成")
     }
   }
   if (!windowShow) {
@@ -97,6 +98,7 @@ fun main() = application {
         windowShow = true
       }
       Item(text = "退出", onClick = ::exitApplication)
+      logger.info("[Tray] 托盘区加载完成")
     }
   }
 }
