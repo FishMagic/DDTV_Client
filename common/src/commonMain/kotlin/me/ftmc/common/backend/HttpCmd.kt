@@ -13,7 +13,6 @@ import me.ftmc.common.LocalLogger
 import me.ftmc.common.StringDataResponse
 import me.ftmc.common.accessKeyId
 import me.ftmc.common.accessKeySecret
-import me.ftmc.common.getRequestURL
 import me.ftmc.common.getSig
 import me.ftmc.common.url
 import java.net.ConnectException
@@ -54,6 +53,8 @@ val httpClient = HttpClient {
     serializer = KotlinxSerializer()
   }
 }
+
+val getRequestURL: (String) -> String = { cmd -> "$url/api/$cmd" }
 
 suspend inline fun <reified T> httpCmd(cmd: String, extraParameters: Map<String, String> = mapOf(), from: String): T {
   val logger = LocalLogger()

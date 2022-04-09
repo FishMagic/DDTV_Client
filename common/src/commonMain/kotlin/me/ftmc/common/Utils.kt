@@ -20,8 +20,6 @@ var accessKeySecret = ""
 
 var serverList = mutableListOf<Server>()
 
-val getRequestURL: (String) -> String = { cmd -> "$url/api/$cmd" }
-
 fun getSig(cmd: String, nowTime: Long): String {
   val strToSig = "accesskeyid=$accessKeyId;accesskeysecret=$accessKeySecret;cmd=${cmd.lowercase()};time=${nowTime};"
   return MessageDigestUtils.sha1(strToSig).uppercase()
