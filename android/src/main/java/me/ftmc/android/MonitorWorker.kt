@@ -55,8 +55,7 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
                   val priority = NotificationChannels.LIVE_STATUS.priority
                   val notification =
                     NotificationCompat.Builder(applicationContext, channelId).setContentTitle(notificationTitle)
-                      .setSmallIcon(android.R.drawable.ic_dialog_info)
-                      .setContentText(notificationMessage).setPriority(priority)
+                      .setSmallIcon(R.drawable.ic_ddtv).setContentText(notificationMessage).setPriority(priority)
                   with(NotificationManagerCompat.from(applicationContext)) {
                     notify(notificationMessage, uid.toInt(), notification.build())
                   }
@@ -75,8 +74,7 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
                   val priority = NotificationChannels.RECORD_STATUS.priority
                   val notification =
                     NotificationCompat.Builder(applicationContext, channelId).setContentTitle(notificationTitle)
-                      .setSmallIcon(android.R.drawable.ic_dialog_info)
-                      .setContentText(notificationMessage).setPriority(priority)
+                      .setSmallIcon(R.drawable.ic_ddtv).setContentText(notificationMessage).setPriority(priority)
                   with(NotificationManagerCompat.from(applicationContext)) {
                     notify(notificationMessage, uid.toInt(), notification.build())
                   }
@@ -110,9 +108,8 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
 
     val notification =
       NotificationCompat.Builder(applicationContext, id).setPriority(priority).setContentTitle(title).setTicker(title)
-        .setContentText("客户端后台运行中").setOngoing(true).addAction(android.R.drawable.ic_delete, "停止后台服务", cancelIntent)
-        .setSmallIcon(android.R.drawable.ic_dialog_info)
-        .build()
+        .setContentText("客户端后台运行中").setOngoing(true).addAction(0, "停止后台服务", cancelIntent)
+        .setSmallIcon(R.drawable.ic_ddtv).build()
 
     return ForegroundInfo(0, notification)
   }
