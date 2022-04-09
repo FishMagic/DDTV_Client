@@ -3,9 +3,6 @@ package me.ftmc.common
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import io.ktor.client.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.ftmc.common.backend.MessageDigestUtils
@@ -22,12 +19,6 @@ var accessKeyId = ""
 var accessKeySecret = ""
 
 var serverList = mutableListOf<Server>()
-
-val httpClient = HttpClient {
-  install(JsonFeature) {
-    serializer = KotlinxSerializer()
-  }
-}
 
 val getRequestURL: (String) -> String = { cmd -> "$url/api/$cmd" }
 
@@ -94,9 +85,6 @@ enum class ConfigKeys {
   CookieDomain,
   Shell
 }
-
-class APIError(val code: Int, val msg: String = "") : RuntimeException()
-
 
 @Serializable
 data class ConfigClass(
