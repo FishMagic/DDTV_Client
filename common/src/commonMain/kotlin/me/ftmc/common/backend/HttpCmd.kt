@@ -64,30 +64,32 @@ suspend inline fun <reified T> httpCmd(cmd: String, extraParameters: Map<String,
   }
   val nowTime = Instant.now().epochSecond
   logger.debug("[httpCmd] 发送HTTP请求 -> $from")
-  val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
-    append("accesskeyid", accessKeyId)
-    append("cmd", cmd)
-    append("time", nowTime.toString())
-    append("sig", getSig(cmd, nowTime))
-    extraParameters.forEach { (key, value) ->
-      append(key, value)
-    }
-  })
-  logger.info("[httpCmd] HTTP响应成功")
   try {
-    val resultObject: T = httpResponse.receive()
-    if (resultObject is StringDataResponse) {
-      if (resultObject.code != 0) {
-        throw APIError(resultObject.code)
+    val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
+      append("accesskeyid", accessKeyId)
+      append("cmd", cmd)
+      append("time", nowTime.toString())
+      append("sig", getSig(cmd, nowTime))
+      extraParameters.forEach { (key, value) ->
+        append(key, value)
       }
+    })
+    logger.info("[httpCmd] HTTP响应成功")
+    try {
+      val resultObject: T = httpResponse.receive()
+      if (resultObject is StringDataResponse) {
+        if (resultObject.code != 0) {
+          throw APIError(resultObject.code)
+        }
+      }
+      return resultObject
+    } catch (_: NoTransformationFoundException) {
+      logger.warn("[httpCmd] 解析失败，尝试解析错误信息")
+      val errorResponse: String = httpResponse.receive()
+      val apiErrorObject = Json.decodeFromString<StringDataResponse>(errorResponse)
+      logger.debug("[httpCmd] 错误信息解析成功")
+      throw APIError(apiErrorObject.code)
     }
-    return resultObject
-  } catch (_: NoTransformationFoundException) {
-    logger.warn("[httpCmd] 解析失败，尝试解析错误信息")
-    val errorResponse: String = httpResponse.receive()
-    val apiErrorObject = Json.decodeFromString<StringDataResponse>(errorResponse)
-    logger.debug("[httpCmd] 错误信息解析成功")
-    throw APIError(apiErrorObject.code)
   } catch (e: Throwable) {
     httpErrorProcessor(e, from)
   }
