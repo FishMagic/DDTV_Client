@@ -13,15 +13,14 @@ import java.time.format.FormatStyle
 
 var darkMode: Boolean? by mutableStateOf(null)
 var notification: Boolean by mutableStateOf(true)
+var selectedServerName by mutableStateOf("无服务器")
 
-var url = ""
-var accessKeyId = ""
-var accessKeySecret = ""
-
-var serverList = mutableListOf<Server>()
+var globalConfigObject = ConfigClass()
+var selectedServer = Server()
 
 fun getSig(cmd: String, nowTime: Long): String {
-  val strToSig = "accesskeyid=$accessKeyId;accesskeysecret=$accessKeySecret;cmd=${cmd.lowercase()};time=${nowTime};"
+  val strToSig =
+    "accesskeyid=${selectedServer.accessKeyId};accesskeysecret=${selectedServer.accessKeySecret};cmd=${cmd.lowercase()};time=${nowTime};"
   return MessageDigestUtils.sha1(strToSig).uppercase()
 }
 
@@ -87,13 +86,45 @@ enum class ConfigKeys {
 @Serializable
 data class ConfigClass(
   val serverList: MutableList<Server> = mutableListOf(),
-  val darkMode: Boolean? = null,
-  val notification: Boolean = true,
-  val logMaxSize: Int = 300
+  val serverListWithID: MutableMap<String, Server> = mutableMapOf(),
+  var selectedUUID: String = "",
+  var darkMode: Boolean? = null,
+  var notification: Boolean = true,
+  var logMaxSize: Int = 300
 )
 
 @Serializable
-data class Server(val url: String, val accessKeyId: String, val accessKeySecret: String, var selected: Boolean)
+data class Server(
+  var name: String = "",
+  var url: String = "",
+  var accessKeyId: String = "",
+  var accessKeySecret: String = "",
+  var selected: Boolean = false
+) {
+  fun isEmpty(): Boolean {
+    return url != "" && accessKeyId != "" && accessKeySecret != ""
+  }
+
+  fun isNotEmpty(): Boolean {
+    return !isEmpty()
+  }
+
+  fun copy(): Server {
+    return Server(this.name, this.url, this.accessKeyId, this.accessKeySecret)
+  }
+
+  override fun equals(other: Any?): Boolean {
+    return if (other is Server) {
+      this.url == other.url
+    } else {
+      false
+    }
+  }
+
+  override fun hashCode(): Int {
+    return url.hashCode()
+  }
+}
 
 @Serializable
 data class SystemInfoResponse(
@@ -288,10 +319,7 @@ data class DownloadedFileInfo(
 
 @Serializable
 data class LoginStateResponse(
-  val cmd: String,
-  val code: Int,
-  val `data`: LoginStateData,
-  val massage: String
+  val cmd: String, val code: Int, val `data`: LoginStateData, val massage: String
 )
 
 @Serializable

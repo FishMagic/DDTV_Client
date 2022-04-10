@@ -11,10 +11,8 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.StringDataResponse
-import me.ftmc.common.accessKeyId
-import me.ftmc.common.accessKeySecret
 import me.ftmc.common.getSig
-import me.ftmc.common.url
+import me.ftmc.common.selectedServer
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -54,11 +52,11 @@ val httpClient = HttpClient {
   }
 }
 
-val getRequestURL: (String) -> String = { cmd -> "$url/api/$cmd" }
+val getRequestURL: (String) -> String = { cmd -> "${selectedServer.url}/api/$cmd" }
 
 suspend inline fun <reified T> httpCmd(cmd: String, extraParameters: Map<String, String> = mapOf(), from: String): T {
   val logger = LocalLogger()
-  if (url == "" || accessKeyId == "" || accessKeySecret == "") {
+  if (selectedServer.isNotEmpty()) {
     logger.warn("[httpCmd] 服务器参数为空，退出执行命令")
     throw APIError(APIErrorType.SERVER_CONFIG_NULL)
   }
@@ -66,7 +64,7 @@ suspend inline fun <reified T> httpCmd(cmd: String, extraParameters: Map<String,
   logger.debug("[httpCmd] 发送HTTP请求 -> $from")
   try {
     val httpResponse: HttpResponse = httpClient.submitForm(url = getRequestURL(cmd), formParameters = Parameters.build {
-      append("accesskeyid", accessKeyId)
+      append("accesskeyid", selectedServer.accessKeyId)
       append("cmd", cmd)
       append("time", nowTime.toString())
       append("sig", getSig(cmd, nowTime))

@@ -12,6 +12,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import java.util.*
 
 lateinit var sharedRef: SharedPreferences
 private val logger = LoggerFactory.getLogger("Android")
@@ -23,8 +24,10 @@ actual fun getPlatformName(): String {
 actual fun saveConfig() {
   val logger = LocalLogger()
   logger.debug("[Android] 开始保存配置信息")
-  val configClass = ConfigClass(serverList, darkMode, notification, LocalLogger.maxSize)
-  val configString = Json.encodeToString(configClass)
+  globalConfigObject.darkMode = darkMode
+  globalConfigObject.notification = notification
+  globalConfigObject.serverList.clear()
+  val configString = Json.encodeToString(globalConfigObject)
   with(sharedRef.edit()) {
     putString("config", configString)
     apply()
@@ -41,23 +44,26 @@ actual fun loadConfig() {
   logger.debug("[Android] 开始加载配置信息")
   val configString = sharedRef.getString("config", "") ?: ""
   try {
-    val configClass = Json.decodeFromString<ConfigClass>(configString)
-    serverList = configClass.serverList
-    var selectedServer: Server? = null
-    for (server in serverList) {
-      if (server.selected) {
-        selectedServer = server
-        break
+    globalConfigObject = Json.decodeFromString(configString)
+    darkMode = globalConfigObject.darkMode
+    notification = globalConfigObject.notification
+    if (globalConfigObject.serverListWithID.isEmpty()) {
+      val serverList = globalConfigObject.serverList
+      for (server in serverList) {
+        val newUUID = UUID.randomUUID().toString()
+        server.name = server.url
+        globalConfigObject.serverListWithID[newUUID] = server
+        if (server.selected && globalConfigObject.selectedUUID.isEmpty()) {
+          globalConfigObject.selectedUUID = newUUID
+        }
       }
+      globalConfigObject.serverList.clear()
+      saveConfig()
     }
-    if (selectedServer != null) {
-      url = selectedServer.url
-      accessKeySecret = selectedServer.accessKeySecret
-      accessKeyId = selectedServer.accessKeyId
-    }
-    darkMode = configClass.darkMode
-    notification = configClass.notification
-    LocalLogger.maxSize = configClass.logMaxSize
+    val selectedUUID = globalConfigObject.selectedUUID
+    val localSelectedServer = globalConfigObject.serverListWithID[selectedUUID] ?: Server()
+    selectedServer = localSelectedServer
+    selectedServerName = localSelectedServer.name
   } catch (_: Exception) {
     logger.warn("[Android] 配置文件存在问题，使用默认配置")
   }

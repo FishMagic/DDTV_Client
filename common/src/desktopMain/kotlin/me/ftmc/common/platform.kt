@@ -11,6 +11,7 @@ import org.jetbrains.skia.Image
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.*
 
 actual fun getPlatformName(): String {
   return "Desktop"
@@ -20,7 +21,9 @@ actual fun getPlatformName(): String {
 actual fun saveConfig() {
   val logger = LocalLogger()
   logger.debug("[Desktop] 开始保存配置信息")
-  val configClass = ConfigClass(serverList, darkMode, notification, LocalLogger.maxSize)
+  globalConfigObject.darkMode = darkMode
+  globalConfigObject.notification = notification
+  globalConfigObject.serverList.clear()
   val file = File("config.json")
   logger.debug("[Desktop] 打开文件成功")
   if (!file.exists()) {
@@ -28,7 +31,7 @@ actual fun saveConfig() {
     logger.debug("[Desktop] 文件不存在，新建文件")
   }
   val fos = FileOutputStream(file)
-  Json.encodeToStream(configClass, fos)
+  Json.encodeToStream(globalConfigObject, fos)
   fos.flush()
   fos.close()
   logger.debug("[Desktop] 配置文件保存成功")
@@ -50,23 +53,26 @@ actual fun loadConfig() {
   }
   val fis = FileInputStream(file)
   try {
-    val configClass = Json.decodeFromStream<ConfigClass>(fis)
-    serverList = configClass.serverList
-    var selectedServer: Server? = null
-    for (server in serverList) {
-      if (server.selected) {
-        selectedServer = server
-        break
+    globalConfigObject = Json.decodeFromStream(fis)
+    darkMode = globalConfigObject.darkMode
+    notification = globalConfigObject.notification
+    if (globalConfigObject.serverListWithID.isEmpty()) {
+      val serverList = globalConfigObject.serverList
+      for (server in serverList) {
+        val newUUID = UUID.randomUUID().toString()
+        server.name = server.url
+        globalConfigObject.serverListWithID[newUUID] = server
+        if (server.selected && globalConfigObject.selectedUUID.isEmpty()) {
+          globalConfigObject.selectedUUID = newUUID
+        }
       }
+      globalConfigObject.serverList.clear()
+      saveConfig()
     }
-    if (selectedServer != null) {
-      url = selectedServer.url
-      accessKeySecret = selectedServer.accessKeySecret
-      accessKeyId = selectedServer.accessKeyId
-    }
-    darkMode = configClass.darkMode
-    notification = configClass.notification
-    LocalLogger.maxSize = configClass.logMaxSize
+    val selectedUUID = globalConfigObject.selectedUUID
+    val localSelectedServer = globalConfigObject.serverListWithID[selectedUUID] ?: Server()
+    selectedServer = localSelectedServer
+    selectedServerName = localSelectedServer.name
   } catch (_: Exception) {
     logger.warn("[Desktop] 配置文件存在问题，使用默认配置")
   }

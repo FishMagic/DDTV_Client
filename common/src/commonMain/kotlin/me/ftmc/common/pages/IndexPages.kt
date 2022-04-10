@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import me.ftmc.common.ConnectStatus
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.components.ClientConfigCard
-import me.ftmc.common.components.ConnectAddCard
+import me.ftmc.common.components.ConnectEditCard
 import me.ftmc.common.components.ConnectSelectCard
 import me.ftmc.common.components.ConnectStatusCard
 import me.ftmc.common.components.LoginInfoCard
@@ -46,34 +46,40 @@ fun IndexPage() {
         Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp)
       }.verticalScroll(rememberScrollState())
     ) {
-      var connectAddExpanded by remember { mutableStateOf(false) }
+      var connectEditExpanded by remember { mutableStateOf(false) }
       var connectSelectExpanded by remember { mutableStateOf(false) }
+      var editingUUID: String? by remember { mutableStateOf(null) }
       ConnectStatusCard(
         apiUsable,
         connectStatus,
-        connectAddExpanded,
+        connectEditExpanded,
         connectSelectExpanded,
         apiUsableUpdater = { apiUsable = it },
         connectStatusUpdater = { connectStatus = it },
         connectAddExpandedUpdater = {
-          connectAddExpanded = it
+          connectEditExpanded = it
           connectSelectExpanded = false
         },
         connectSelectExpandedUpdater = {
           connectSelectExpanded = it
-          connectAddExpanded = false
+          connectEditExpanded = false
         })
-      if (connectAddExpanded) {
+      if (connectEditExpanded) {
         Spacer(Modifier.height(8.dp))
       }
-      ConnectAddCard(connectAddExpanded) {
+      ConnectEditCard(connectEditExpanded, editingUUID) {
         apiUsable = true
-        connectAddExpanded = false
+        connectEditExpanded = false
+        editingUUID = null
       }
       if (connectSelectExpanded) {
         Spacer(Modifier.height(8.dp))
       }
-      ConnectSelectCard(connectSelectExpanded) {
+      ConnectSelectCard(connectSelectExpanded, {
+        editingUUID = it
+        connectEditExpanded = true
+        connectSelectExpanded = false
+      }) {
         apiUsable = true
         connectSelectExpanded = false
       }

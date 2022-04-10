@@ -30,6 +30,7 @@ import me.ftmc.common.LocalLogger
 import me.ftmc.common.backend.APIError
 import me.ftmc.common.backend.APIErrorType
 import me.ftmc.common.backend.systemInfoFlow
+import me.ftmc.common.selectedServerName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,6 +80,7 @@ fun ConnectStatusCard(
     }
     Column(modifier = Modifier.padding(16.dp)) {
       Text(text = "服务器信息", style = MaterialTheme.typography.headlineSmall)
+      Text(text = "已连接的服务器：${selectedServerName}", style = MaterialTheme.typography.bodySmall)
       Row(verticalAlignment = Alignment.CenterVertically) {
         Text("连接状态：${connectStatus.statusString}", style = MaterialTheme.typography.bodySmall)
         AnimatedVisibility(
