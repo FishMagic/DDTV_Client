@@ -22,3 +22,7 @@ val loginStateFlow = flow {
     }
   }
 }.flowOn(Dispatchers.IO)
+
+suspend fun loginStateCmd(): LoginStateResponse {
+  return httpCmd("Login_State", from = "loginStateCmd")
+}
