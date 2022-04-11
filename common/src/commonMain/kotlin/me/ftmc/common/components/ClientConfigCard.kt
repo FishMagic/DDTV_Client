@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import me.ftmc.common.LocalLogLevel
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.darkMode
 import me.ftmc.common.notification
@@ -72,29 +73,70 @@ fun ClientConfigCard() {
         }
       }
       Text(text = "深色模式", style = MaterialTheme.typography.bodyLarge)
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = darkMode == true, onClick = {
-          logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${true}")
-          darkMode = true
-          saveConfig()
-        })
-        Text("开", style = MaterialTheme.typography.bodySmall)
+      Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          RadioButton(selected = darkMode == true, onClick = {
+            logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${true}")
+            darkMode = true
+            saveConfig()
+          })
+          Text("开", style = MaterialTheme.typography.bodySmall)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          RadioButton(selected = darkMode == false, onClick = {
+            logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${false}")
+            darkMode = false
+            saveConfig()
+          })
+          Text("关", style = MaterialTheme.typography.bodySmall)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          RadioButton(selected = darkMode == null, onClick = {
+            logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${null}")
+            darkMode = null
+            saveConfig()
+          })
+          Text("跟随系统", style = MaterialTheme.typography.bodySmall)
+        }
       }
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = darkMode == false, onClick = {
-          logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${false}")
-          darkMode = false
-          saveConfig()
-        })
-        Text("关", style = MaterialTheme.typography.bodySmall)
-      }
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(selected = darkMode == null, onClick = {
-          logger.debug("[ClientConfigCard] 修改深色模式状态 -> ${null}")
-          darkMode = null
-          saveConfig()
-        })
-        Text("跟随系统", style = MaterialTheme.typography.bodySmall)
+      Text(text = "日志等级", style = MaterialTheme.typography.bodyLarge)
+      Column {
+        Row {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = LocalLogger.logLevel >= LocalLogLevel.DEBUG, onClick = {
+              LocalLogger.logLevel = LocalLogLevel.DEBUG
+              logger.debug("[ClientConfigCard] 修改日志级别状态 -> DEBUG")
+              saveConfig()
+            })
+            Text("DEBUG", style = MaterialTheme.typography.bodySmall)
+          }
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = LocalLogger.logLevel == LocalLogLevel.WARNING, onClick = {
+              logger.debug("[ClientConfigCard] 修改日志级别状态 -> WARNING")
+              LocalLogger.logLevel = LocalLogLevel.WARNING
+              saveConfig()
+            })
+            Text("WARNING", style = MaterialTheme.typography.bodySmall)
+          }
+        }
+        Row {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = LocalLogger.logLevel == LocalLogLevel.INFO, onClick = {
+              logger.debug("[ClientConfigCard] 修改日志级别状态 -> INFO")
+              LocalLogger.logLevel = LocalLogLevel.INFO
+              saveConfig()
+            })
+            Text("INFO", style = MaterialTheme.typography.bodySmall)
+          }
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = LocalLogger.logLevel == LocalLogLevel.NONE, onClick = {
+              logger.debug("[ClientConfigCard] 修改日志级别状态 -> NONE")
+              LocalLogger.logLevel = LocalLogLevel.NONE
+              saveConfig()
+            })
+            Text("NONE", style = MaterialTheme.typography.bodySmall)
+          }
+        }
       }
     }
   }

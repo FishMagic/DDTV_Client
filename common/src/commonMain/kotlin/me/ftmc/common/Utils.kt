@@ -3,13 +3,13 @@ package me.ftmc.common
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import me.ftmc.common.backend.MessageDigestUtils
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import me.ftmc.common.backend.MessageDigestUtils
 
 var darkMode: Boolean? by mutableStateOf(null)
 var notification: Boolean by mutableStateOf(true)
@@ -90,6 +90,7 @@ data class ConfigClass(
   var selectedUUID: String = "",
   var darkMode: Boolean? = null,
   var notification: Boolean = true,
+  var logLevel: LocalLogLevel = LocalLogLevel.ALL,
   var logMaxSize: Int = 300
 )
 

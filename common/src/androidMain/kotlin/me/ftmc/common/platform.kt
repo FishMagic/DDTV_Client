@@ -8,14 +8,15 @@ import androidx.compose.ui.graphics.asImageBitmap
 import com.google.accompanist.insets.navigationBarsHeight
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
+import java.io.File
+import java.io.IOException
+import java.util.UUID
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.slf4j.LoggerFactory
-import java.util.*
 
 lateinit var sharedRef: SharedPreferences
-private val logger = LoggerFactory.getLogger("Android")
+lateinit var contextCacheFile: File
 
 actual fun getPlatformName(): String {
   return "Android"
@@ -27,6 +28,7 @@ actual fun saveConfig() {
   globalConfigObject.darkMode = darkMode
   globalConfigObject.notification = notification
   globalConfigObject.serverList.clear()
+  globalConfigObject.logLevel = LocalLogger.logLevel
   val configString = Json.encodeToString(globalConfigObject)
   with(sharedRef.edit()) {
     putString("config", configString)
@@ -47,6 +49,7 @@ actual fun loadConfig() {
     globalConfigObject = Json.decodeFromString(configString)
     darkMode = globalConfigObject.darkMode
     notification = globalConfigObject.notification
+    LocalLogger.logLevel = globalConfigObject.logLevel
     if (globalConfigObject.serverListWithID.isEmpty()) {
       val serverList = globalConfigObject.serverList
       for (server in serverList) {
@@ -80,4 +83,16 @@ actual fun Modifier.bottomBarModifier(): Modifier {
 
 actual fun Modifier.navigationBarsHeightModifier(): Modifier {
   return this.navigationBarsHeight()
+}
+
+actual fun createLogFile(time: String): File {
+  val logDir = File(contextCacheFile, "log/")
+  if (logDir.isFile) {
+    throw  IOException()
+  }
+  if (!logDir.exists()) {
+    logDir.mkdir()
+  }
+  File.createTempFile("log/DDTV-Client-$time", ".log", contextCacheFile)
+  return File(contextCacheFile, "DDTV-Client-$time.log")
 }

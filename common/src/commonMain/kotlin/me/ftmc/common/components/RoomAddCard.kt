@@ -76,6 +76,7 @@ fun RoomAddCard(cancelUpdater: () -> Unit, addSuccessUpdater: (Boolean) -> Unit)
                   e.errorType.msg
                 } catch (e: Exception) {
                   logger.warn("[RoomAddCard] 发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                  logger.errorCatch(e)
                   buttonEnable = true
                   "操作失败：未知错误"
                 }

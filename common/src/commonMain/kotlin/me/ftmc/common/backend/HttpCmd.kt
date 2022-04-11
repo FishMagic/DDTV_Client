@@ -1,22 +1,23 @@
 package me.ftmc.common.backend
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
+import io.ktor.client.call.receive
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.Parameters
+import java.net.ConnectException
+import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.time.Instant
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.StringDataResponse
 import me.ftmc.common.getSig
 import me.ftmc.common.selectedServer
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.time.Instant
 
 enum class APIErrorType(val code: Int, val msg: String) {
   UNKNOWN_ERROR(0, "未知错误"),
@@ -123,6 +124,7 @@ fun httpErrorProcessor(e: Throwable, from: String) {
     }
     else -> {
       logger.warn("[httpErrorProcessor] 发生预料外错误 -> $from, ${e.javaClass.name} ,${e.message}")
+      logger.errorCatch(e)
       throw APIError(APIErrorType.UNKNOWN_ERROR)
     }
   }

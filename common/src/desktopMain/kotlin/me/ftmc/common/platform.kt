@@ -3,15 +3,16 @@ package me.ftmc.common
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.UUID
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import org.jetbrains.skia.Image
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.util.*
 
 actual fun getPlatformName(): String {
   return "Desktop"
@@ -23,6 +24,7 @@ actual fun saveConfig() {
   logger.debug("[Desktop] 开始保存配置信息")
   globalConfigObject.darkMode = darkMode
   globalConfigObject.notification = notification
+  globalConfigObject.logLevel = LocalLogger.logLevel
   globalConfigObject.serverList.clear()
   val file = File("config.json")
   logger.debug("[Desktop] 打开文件成功")
@@ -56,6 +58,7 @@ actual fun loadConfig() {
     globalConfigObject = Json.decodeFromStream(fis)
     darkMode = globalConfigObject.darkMode
     notification = globalConfigObject.notification
+    LocalLogger.logLevel = globalConfigObject.logLevel
     if (globalConfigObject.serverListWithID.isEmpty()) {
       val serverList = globalConfigObject.serverList
       for (server in serverList) {
@@ -89,4 +92,19 @@ actual fun Modifier.bottomBarModifier(): Modifier {
 
 actual fun Modifier.navigationBarsHeightModifier(): Modifier {
   return this
+}
+
+actual fun createLogFile(time: String): File {
+  val logDir = File("log/")
+  if (logDir.isFile) {
+    throw  IOException()
+  }
+  if (!logDir.exists()) {
+    logDir.mkdir()
+  }
+  val logFile = File(logDir, "DDTV-Client-$time.log")
+  if (!logFile.exists()) {
+    logFile.createNewFile()
+  }
+  return logFile
 }

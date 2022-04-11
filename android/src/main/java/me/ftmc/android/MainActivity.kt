@@ -11,14 +11,15 @@ import androidx.window.layout.WindowMetricsCalculator
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
+import java.util.UUID
 import me.ftmc.android.ui.theme.AppTheme
 import me.ftmc.common.App
 import me.ftmc.common.LocalLogger
+import me.ftmc.common.contextCacheFile
 import me.ftmc.common.darkMode
 import me.ftmc.common.notification
 import me.ftmc.common.saveWindowsSizeType
 import me.ftmc.common.sharedRef
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
   var lastMonitorWorker: UUID = UUID.randomUUID()
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     WindowCompat.setDecorFitsSystemWindows(window, false)
     getWindowWidth()
     sharedRef = this.getSharedPreferences("Client_Config", Context.MODE_PRIVATE)
+    contextCacheFile = this.cacheDir
     setContent {
       AppTheme(darkTheme = darkMode ?: isSystemInDarkTheme()) {
         App()

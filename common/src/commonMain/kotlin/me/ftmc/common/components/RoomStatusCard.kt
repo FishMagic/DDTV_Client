@@ -97,6 +97,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
                 logger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生API错误 -> ${e.errorType.msg}")
               } catch (e: Exception) {
                 logger.warn("[RoomStatusCard-${room.uid}] 修改自动录制状态发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                logger.errorCatch(e)
               }
               buttonEnable = true
             }
@@ -116,6 +117,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
                 logger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生API错误 -> ${e.errorType.msg}")
               } catch (e: Exception) {
                 logger.warn("[RoomStatusCard-${room.uid}] 修改弹幕录制状态发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                logger.errorCatch(e)
               }
               buttonEnable = true
             }
@@ -144,6 +146,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
                 } catch (e: Exception) {
                   buttonEnable = true
                   logger.warn("[RoomStatusCard-${room.uid}] 删除房间发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                  logger.errorCatch(e)
                 }
               }
             } else {
@@ -210,6 +213,7 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
                     logger.warn("[RoomStatusCard-${room.uid}] 取消录制发生API错误 -> ${e.errorType.msg}")
                   } catch (e: Exception) {
                     logger.warn("[RoomStatusCard-${room.uid}] 取消录制发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                    logger.errorCatch(e)
                   }
                   cancelButtonEnable = true
                 }

@@ -29,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
-import io.ktor.client.request.*
+import io.ktor.client.request.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -105,6 +105,7 @@ fun LoginInfoCard(connectStatus: ConnectStatus) {
                   logger.warn("[LoginInfoCard] 重置登录状态发生API错误 -> ${e.errorType.msg}")
                 } catch (e: Exception) {
                   logger.warn("[LoginInfoCard] 重置登录状态发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
+                  logger.errorCatch(e)
                 }
                 logoutButtonEnable = true
                 loginCode = 3

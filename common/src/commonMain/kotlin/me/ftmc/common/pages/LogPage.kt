@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.currentScreenWidth
-import me.ftmc.common.formatLongTime
 import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.screenTypeChangeWidth
 
@@ -41,7 +40,7 @@ private fun LogList() {
     state = scrollState
   ) {
     itemsIndexed(LocalLogger.loggerBuket) { index, log ->
-      Text("[${log.level}] ${formatLongTime(log.time)}: ${log.message}", style = MaterialTheme.typography.bodySmall)
+      Text(log.toString(), style = MaterialTheme.typography.bodySmall)
       LaunchedEffect(true) {
         scrollState.animateScrollToItem(index)
       }
