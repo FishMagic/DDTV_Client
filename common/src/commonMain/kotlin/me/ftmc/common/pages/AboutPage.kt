@@ -27,7 +27,7 @@ import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.screenTypeChangeWidth
 
 private const val version = "1.2.0 Alpha"
-private const val versionCode = 3
+private const val versionCode = 3.0
 private const val updateCheckURL = "https://fishmagic.github.io/DDTV_Updater/releases/client/version"
 
 @Composable
@@ -49,7 +49,7 @@ fun AboutPage() {
       Text(text = updateCheckString)
       LaunchedEffect(true) {
         updateCheckString = try {
-          val remoteVersionCode: Int = httpClient.get(updateCheckURL)
+          val remoteVersionCode: Double = httpClient.get(updateCheckURL)
           if (remoteVersionCode > versionCode) {
             "发现新版本"
           } else {
