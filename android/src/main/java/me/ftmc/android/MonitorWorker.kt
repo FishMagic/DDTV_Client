@@ -2,7 +2,10 @@ package me.ftmc.android
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.app.NotificationCompat
@@ -87,6 +90,7 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
           val username = roomInfo.uname
           val liveStatus = roomInfo.live_status
           val isDownload = roomInfo.IsDownload
+          val roomId = roomInfo.room_id
           val roomState = roomsState[uid]
           if (uid != null && liveStatus != null && isDownload != null && username != null) {
             if (roomState == null) {
@@ -102,6 +106,11 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
                   val notification =
                     NotificationCompat.Builder(applicationContext, channelId).setContentTitle(notificationTitle)
                       .setSmallIcon(R.drawable.ic_ddtv).setContentText(notificationMessage).setPriority(priority)
+                  if (liveStatus == 1) {
+                    val openIntent = Intent(Intent.ACTION_VIEW, Uri.parse("bilibili://live/$roomId"))
+                    val pendingIntent = PendingIntent.getActivity(applicationContext, 0, openIntent, 0)
+                    notification.setContentIntent(pendingIntent)
+                  }
                   with(NotificationManagerCompat.from(applicationContext)) {
                     notify(notificationMessage, uid.toInt(), notification.build())
                   }
