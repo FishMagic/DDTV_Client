@@ -9,3 +9,4 @@ local.properties
 /android/release/*
 config.json
 /log
+.type

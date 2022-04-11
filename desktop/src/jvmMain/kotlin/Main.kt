@@ -14,6 +14,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberTrayState
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -32,6 +34,18 @@ fun main() = application {
   var windowShow by remember { mutableStateOf(true) }
   val trayState = rememberTrayState()
   val logger = remember { LocalLogger() }
+  LaunchedEffect(true) {
+    val typeFile = File(".type")
+    withContext(Dispatchers.IO) {
+      if (!typeFile.exists()) {
+        typeFile.createNewFile()
+      }
+      val typeFOS = FileOutputStream(typeFile)
+      typeFOS.write("client".toByteArray())
+      typeFOS.flush()
+      typeFOS.close()
+    }
+  }
   if (windowShow) {
     Window(
       onCloseRequest = {
