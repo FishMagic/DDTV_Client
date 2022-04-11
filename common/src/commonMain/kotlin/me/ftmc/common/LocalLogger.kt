@@ -96,6 +96,8 @@ class LocalLogger {
 
   @Synchronized
   fun errorCatch(e: Throwable) {
+    loggerBuket.add(LogObject("ERROR", Instant.now().epochSecond, e.message.toString()))
+    backendLogger.error(e.message)
     val writer = FileWriter(logFile, true)
     writer.write(e.stackTrace.toString() + "\n")
     writer.flush()

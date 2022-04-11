@@ -1,7 +1,9 @@
 package me.ftmc.common
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -17,6 +19,8 @@ import kotlinx.serialization.json.Json
 
 lateinit var sharedRef: SharedPreferences
 lateinit var contextCacheFile: File
+lateinit var getFileURI: (File) -> Uri
+lateinit var intentSend: (Intent) -> Unit
 
 actual fun getPlatformName(): String {
   return "Android"
@@ -93,6 +97,28 @@ actual fun createLogFile(time: String): File {
   if (!logDir.exists()) {
     logDir.mkdir()
   }
-  File.createTempFile("log/DDTV-Client-$time", ".log", contextCacheFile)
-  return File(contextCacheFile, "DDTV-Client-$time.log")
+  File.createTempFile("DDTV-Client-$time", ".log", logDir)
+  return File(logDir, "DDTV-Client-$time.log")
+}
+
+actual fun getLogFileList(): Array<out File>? {
+  val file = File(contextCacheFile, "log/")
+  return file.listFiles()
+}
+
+actual fun shareLogFile(file: File) {
+  val shareIntent = Intent(Intent.ACTION_SEND)
+  shareIntent.putExtra(Intent.EXTRA_STREAM, getFileURI(file))
+  shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+  shareIntent.type = "text/plain"
+  intentSend(shareIntent)
+}
+
+actual fun removeAllLog() {
+  val file = File(contextCacheFile, "log/")
+  file.listFiles()?.forEach {
+    if (it != LocalLogger.logFile) {
+      it.delete()
+    }
+  }
 }

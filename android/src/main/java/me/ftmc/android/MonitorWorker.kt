@@ -151,7 +151,8 @@ class MonitorWorker(context: Context, parameters: WorkerParameters) : CoroutineW
             CMD_FAILED -> "命令执行错误"
           }
         } else {
-          "DDTV 客户端发生未知错误"
+          logger.errorCatch(e)
+          return Result.failure()
         }
         val notification = NotificationCompat.Builder(applicationContext, channelId).setContentTitle(notificationTitle)
           .setSmallIcon(R.drawable.ic_ddtv).setContentText(notificationMessage).setPriority(priority)

@@ -19,3 +19,9 @@ expect fun Modifier.bottomBarModifier(): Modifier
 expect fun Modifier.navigationBarsHeightModifier(): Modifier
 
 expect fun createLogFile(time: String): File
+
+expect fun getLogFileList(): Array<out File>?
+
+expect fun shareLogFile(file: File)
+
+expect fun removeAllLog()

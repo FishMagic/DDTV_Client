@@ -108,3 +108,20 @@ actual fun createLogFile(time: String): File {
   }
   return logFile
 }
+
+actual fun getLogFileList(): Array<out File>? {
+  val file = File("log/")
+  return file.listFiles()
+}
+
+actual fun shareLogFile(file: File) {
+}
+
+actual fun removeAllLog() {
+  val file = File("log/")
+  file.listFiles()?.forEach {
+    if (it != LocalLogger.logFile) {
+      it.delete()
+    }
+  }
+}
