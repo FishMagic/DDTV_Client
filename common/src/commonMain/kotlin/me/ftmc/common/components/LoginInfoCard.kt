@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import io.ktor.client.request.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.ftmc.common.ConnectStatus
@@ -61,7 +62,7 @@ fun LoginInfoCard(connectStatus: ConnectStatus) {
       var loginCode by remember { mutableStateOf(0) }
       var qrCodeExpanded by remember { mutableStateOf(false) }
       LaunchedEffect(loginCode) {
-        loginStateFlow.collect {
+        loginStateFlow.catch { }.collect {
           loginCode = it.LoginState
           qrCodeExpanded = it.LoginState != 1 && it.LoginState != 2
           logger.debug("[LoginInfoCard] 心跳响应成功 -> $loginCode")
