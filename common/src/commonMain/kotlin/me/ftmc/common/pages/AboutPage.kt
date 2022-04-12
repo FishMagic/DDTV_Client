@@ -49,7 +49,8 @@ fun AboutPage() {
       Text(text = updateCheckString)
       LaunchedEffect(true) {
         updateCheckString = try {
-          val remoteVersionCode: Double = httpClient.get(updateCheckURL)
+          val remoteVersionCodeString: String = httpClient.get(updateCheckURL)
+          val remoteVersionCode = remoteVersionCodeString.toDouble()
           if (remoteVersionCode > versionCode) {
             "发现新版本"
           } else {
