@@ -140,7 +140,7 @@ fun ServerConfigCard(connectStatus: ConnectStatus) {
               value = flvSplitSize,
               onValueChange = {
                 flvSplitSize = it.filter { char -> char.isDigit() }
-                if (flvSplitSize.toLong() < 10485760) {
+                if ((flvSplitSize.toLong() != 0L) && (flvSplitSize.toLong() < 10485760)) {
                   flvSplitSizeError = true
                   flvSplitSizeButtonEnbale = false
                 } else {
