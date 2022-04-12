@@ -30,6 +30,7 @@
 | Client 版本          | DDTV_WEB_Server 版本       |
 |--------------------|--------------------------|
 | Client 1.1.0-Alpha | DDTV_WEB_Server 3.0.2.1+ |
+| Client 1.2.0       | DDTV_WEB_Server 3.0.2.2+ |
 
 ## 许可证
 

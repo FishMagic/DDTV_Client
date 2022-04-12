@@ -27,8 +27,8 @@ android {
     applicationId = "me.ftmc.ddtv_client"
     minSdk = 24
     targetSdk = 31
-    versionCode = 2
-    versionName = "1.1.0 Alpha"
+    versionCode = 3
+    versionName = "1.2.0"
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_15
