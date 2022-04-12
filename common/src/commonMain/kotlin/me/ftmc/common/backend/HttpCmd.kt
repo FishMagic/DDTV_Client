@@ -120,7 +120,7 @@ fun httpErrorProcessor(e: Throwable, from: String) {
     }
     is APIError -> {
       logger.warn("[httpErrorProcessor] 发生API错误 -> $from, ${e.errorType.msg}")
-      throw APIError(APIErrorType.NETWORK_CONNECT_FAILED)
+      throw e
     }
     else -> {
       logger.warn("[httpErrorProcessor] 发生预料外错误 -> $from, ${e.javaClass.name} ,${e.message}")
