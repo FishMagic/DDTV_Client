@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -53,12 +54,33 @@ fun ServerConfigCard(connectStatus: ConnectStatus) {
         logger.info("[ServerConfigCard] 卡片加载")
       }
       var isAutoTranscod by remember { mutableStateOf(false) }
-      var autoTranscodeButtonEnable by remember { mutableStateOf(false) }
+      var autoTranscodeButtonEnable by remember {
+        mutableStateOf(
+          false
+        )
+      }
       var flvSplitSize by remember { mutableStateOf("") }
-      var flvSplitSizeError by remember { mutableStateOf(false) }
-      var flvSplitSizeButtonEnbale by remember { mutableStateOf(false) }
+      var flvSplitSizeError by remember {
+        mutableStateOf(
+          false
+        )
+      }
+      var flvSplitSizeButtonEnable by remember {
+        mutableStateOf(
+          false
+        )
+      }
+      var flvSplitSizeFocused by remember {
+        mutableStateOf(
+          false
+        )
+      }
       var isRecDanmu by remember { mutableStateOf(false) }
-      var isRecDanmuButtonEnable by remember { mutableStateOf(false) }
+      var isRecDanmuButtonEnable by remember {
+        mutableStateOf(
+          false
+        )
+      }
       val systemConfigScope = rememberCoroutineScope()
       LaunchedEffect(true) {
         systemConfigFlow.collect { configs ->
@@ -72,8 +94,10 @@ fun ServerConfigCard(connectStatus: ConnectStatus) {
                 }
                 ConfigKeys.FlvSplitSize -> {
                   logger.info("[ServerConfigCard] 识别到自动分割配置 -> ${config.Key}, ${config.Value}")
-                  flvSplitSize = config.Value
-                  flvSplitSizeButtonEnbale = true
+                  if (!flvSplitSizeFocused) {
+                    flvSplitSize = config.Value
+                    flvSplitSizeButtonEnable = true
+                  }
                 }
                 ConfigKeys.IsRecDanmu -> {
                   logger.info("[ServerConfigCard] 识别到弹幕录制配置 -> ${config.Key}, ${config.Value}")
@@ -140,28 +164,37 @@ fun ServerConfigCard(connectStatus: ConnectStatus) {
               value = flvSplitSize,
               onValueChange = {
                 flvSplitSize = it.filter { char -> char.isDigit() }
-                if ((flvSplitSize.toLong() != 0L) && (flvSplitSize.toLong() < 10485760)) {
+                if ((flvSplitSize != "") && (flvSplitSize.toLong() != 0L) && (flvSplitSize.toLong() < 10485760)) {
                   flvSplitSizeError = true
-                  flvSplitSizeButtonEnbale = false
+                  flvSplitSizeButtonEnable = false
                 } else {
                   flvSplitSizeError = false
-                  flvSplitSizeButtonEnbale = true
+                  flvSplitSizeButtonEnable = true
                 }
               },
               label = { androidx.compose.material.Text(text = "自动切片大小 (Bytes)") },
               isError = flvSplitSizeError,
-              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+              keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+              modifier = Modifier.onFocusChanged {
+                flvSplitSizeFocused = it.isFocused
+              }
             )
           }
           Column(Modifier.weight(.2f)) {
             TextButton(
               onClick = {
-                flvSplitSizeButtonEnbale = false
+                flvSplitSizeButtonEnable = false
                 logger.debug("[ServerConfigCard] 开始修改自动切片大小")
                 systemConfigScope.launch(Dispatchers.IO) {
                   try {
                     logger.debug("[ServerConfigCard] 准备发送修改自动切片大小请求")
-                    systemCmdWithLong("Config_FileSplit", "state", flvSplitSize.toLong())
+                    systemCmdWithLong(
+                      "Config_FileSplit",
+                      "state",
+                      if (flvSplitSize != "") {
+                        flvSplitSize.toLong()
+                      } else 0L
+                    )
                     logger.info("[ServerConfigCard] 修改自动切片大小成功")
                   } catch (e: APIError) {
                     logger.warn("[ServerConfigCard] 修改自动切片大小发生API错误 -> ${e.errorType.msg}")
@@ -169,9 +202,9 @@ fun ServerConfigCard(connectStatus: ConnectStatus) {
                     logger.warn("[ServerConfigCard] 修改自动切片大小发生预料外错误 -> ${e.javaClass.name} ,${e.message}")
                     logger.errorCatch(e)
                   }
-                  flvSplitSizeButtonEnbale = true
+                  flvSplitSizeButtonEnable = true
                 }
-              }, enabled = flvSplitSizeButtonEnbale
+              }, enabled = flvSplitSizeButtonEnable
             ) {
               Text(text = "保存")
             }
