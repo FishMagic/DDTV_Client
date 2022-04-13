@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.ftmc.common.LocalLogger
@@ -172,17 +173,18 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
           var totalDownloadCount by remember { mutableStateOf(0L) }
           var startTime by remember { mutableStateOf(0L) }
           LaunchedEffect(true) {
-            recordInfoFlow.collect {
-              val checkedRoom: RecRecordingInfoLiteData? = run {
-                for (recordInfoRoom in it) {
-                  if (recordInfoRoom.Uid == room.uid) {
-                    logger.debug("[RoomStatusCard-${room.uid}] 读取录制信息成功")
-                    return@run recordInfoRoom
+            recordInfoFlow.catch { }.collect {
+              val checkedRoom: RecRecordingInfoLiteData? =
+                run {
+                  for (recordInfoRoom in it) {
+                    if (recordInfoRoom.Uid == room.uid) {
+                      logger.debug("[RoomStatusCard-${room.uid}] 读取录制信息成功")
+                      return@run recordInfoRoom
+                    }
                   }
+                  logger.warn("[RoomStatusCard-${room.uid}] 未发现录制信息")
+                  return@run null
                 }
-                logger.warn("[RoomStatusCard-${room.uid}] 未发现录制信息")
-                return@run null
-              }
               if (checkedRoom == null) {
                 liveInfoExpanded = false
               } else {

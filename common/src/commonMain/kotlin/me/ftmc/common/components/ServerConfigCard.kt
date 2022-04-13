@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.ftmc.common.ConfigKeys
@@ -83,7 +84,7 @@ fun ServerConfigCard(connectStatus: ConnectStatus) {
       }
       val systemConfigScope = rememberCoroutineScope()
       LaunchedEffect(true) {
-        systemConfigFlow.collect { configs ->
+        systemConfigFlow.catch { }.collect { configs ->
           configs.forEach { config ->
             try {
               when (ConfigKeys.values()[config.Key]) {
