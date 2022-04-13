@@ -72,6 +72,7 @@ fun ConnectSelectCard(
               IconButton(onClick = {
                 selectedServer = globalConfigObject.serverListWithID[uuid] ?: Server()
                 globalConfigObject.selectedUUID = uuid
+                selectedServerName = selectedServer.name
                 saveConfig()
                 settingSaveUpdater()
                 logger.debug("[ConnectSelectCard] 服务器已选择 -> ${rowServer.name}")
