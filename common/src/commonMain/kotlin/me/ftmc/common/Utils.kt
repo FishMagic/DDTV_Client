@@ -97,7 +97,7 @@ data class ConfigClass(
 @Serializable
 data class Server(
   var name: String = "",
-  var url: String = "",
+  var url: String = "http://",
   var accessKeyId: String = "",
   var accessKeySecret: String = "",
   var selected: Boolean = false
