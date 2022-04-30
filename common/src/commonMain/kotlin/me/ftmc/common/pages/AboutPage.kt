@@ -26,8 +26,8 @@ import me.ftmc.common.currentScreenWidth
 import me.ftmc.common.navigationBarsHeightModifier
 import me.ftmc.common.screenTypeChangeWidth
 
-private const val version = "1.2.1"
-private const val versionCode = 3.1
+private const val version = "1.2.2"
+private const val versionCode = 3.2
 private const val updateCheckURL =
   "https://fishmagic.github.io/DDTV_Updater/releases/client/version"
 
