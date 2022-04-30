@@ -218,14 +218,14 @@ data class RecRecordingInfoLiteResponse(
 
 @Serializable
 data class RecRecordingInfoLiteData(
-  val EndTime: Long,
-  val FilePath: String,
-  val RoomId: String,
-  val StartTime: Long,
-  val Title: String,
-  val Token: String,
-  val TotalDownloadCount: Long,
-  val Uid: Long
+  val EndTime: Long?,
+  val FilePath: String?,
+  val RoomId: String?,
+  val StartTime: Long?,
+  val Title: String?,
+  val Token: String?,
+  val TotalDownloadCount: Long?,
+  val Uid: Long?
 )
 
 @Serializable

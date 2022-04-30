@@ -188,8 +188,8 @@ fun RoomStatusCard(room: RealRoom, expandedUpdater: (Boolean) -> Unit) {
               if (checkedRoom == null) {
                 liveInfoExpanded = false
               } else {
-                startTime = checkedRoom.StartTime
-                totalDownloadCount = checkedRoom.TotalDownloadCount
+                startTime = checkedRoom.StartTime ?: 0
+                totalDownloadCount = checkedRoom.TotalDownloadCount ?: 0
               }
             }
           }
