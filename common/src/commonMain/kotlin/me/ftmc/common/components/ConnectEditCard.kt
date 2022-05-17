@@ -28,13 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import java.net.URL
+import java.util.UUID
 import me.ftmc.common.LocalLogger
 import me.ftmc.common.Server
 import me.ftmc.common.globalConfigObject
 import me.ftmc.common.saveConfig
 import me.ftmc.common.selectedServer
 import me.ftmc.common.selectedServerName
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +57,7 @@ fun ConnectEditCard(connectEditExpanded: Boolean, editingUUID: String? = null, s
       Column(modifier = Modifier.padding(16.dp)) {
         var nameCannotUse by remember { mutableStateOf(false) }
         var serverExist by remember { mutableStateOf(false) }
+        var serverURLError by remember { mutableStateOf(false) }
         Text(text = "服务器添加", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(value = tempName, onValueChange = {
@@ -70,11 +72,18 @@ fun ConnectEditCard(connectEditExpanded: Boolean, editingUUID: String? = null, s
             tempURL = it
             editServer.url = it
             serverExist = editServer in globalConfigObject.serverListWithID.values
+            serverURLError = try {
+              URL(tempURL)
+              !(tempURL.startsWith("http://") || tempURL.startsWith("https://")) ||
+                  (tempURL.endsWith("/") || tempURL.endsWith("\\"))
+            } catch (_: Exception) {
+              true
+            }
           },
           placeholder = { androidx.compose.material.Text(text = "包含 http:// 或 https:// 部分") },
           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
           label = { androidx.compose.material.Text(text = "服务器地址") },
-          isError = serverExist
+          isError = serverExist || serverURLError
         )
         OutlinedTextField(value = tempAccessKeyId, onValueChange = {
           tempAccessKeyId = it
@@ -93,7 +102,7 @@ fun ConnectEditCard(connectEditExpanded: Boolean, editingUUID: String? = null, s
             saveConfig()
             settingSaveUpdater()
             logger.info("[ConnectAddCard] 配置保存成功")
-          }, enabled = !(nameCannotUse || serverExist)) {
+          }, enabled = !(nameCannotUse || serverExist || serverURLError)) {
             Text(text = "保存")
           }
           TextButton(onClick = {
