@@ -59,6 +59,7 @@ fun IndexPage() {
         connectAddExpandedUpdater = {
           connectEditExpanded = it
           connectSelectExpanded = false
+          editingUUID = null
         },
         connectSelectExpandedUpdater = {
           connectSelectExpanded = it
