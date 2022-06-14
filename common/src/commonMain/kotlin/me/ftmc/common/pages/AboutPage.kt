@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +48,7 @@ fun AboutPage() {
       Text(text = "Version: $version", style = MaterialTheme.typography.bodyLarge)
       Text(text = "由 Laevatein Scarlet (FishMagic) 编译", style = MaterialTheme.typography.bodySmall)
       Text(text = "发行版使用 CC-BY-NC-SA 3.0 许可证发行", style = MaterialTheme.typography.bodySmall)
+      OutlinedTextField(value = "https://github.com/FishMagic/DDTV_Client/releases", onValueChange = {})
       Spacer(Modifier.height(16.dp))
       Text(text = updateCheckString)
       LaunchedEffect(true) {
