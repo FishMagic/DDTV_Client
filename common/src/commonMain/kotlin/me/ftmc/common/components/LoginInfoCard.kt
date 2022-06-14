@@ -29,11 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.ftmc.common.ConnectStatus
 import me.ftmc.common.LocalLogger
@@ -128,7 +128,7 @@ fun LoginInfoCard(connectStatus: ConnectStatus) {
               while (true) {
                 imageLoading = true
                 try {
-                  val imageByteArray: ByteArray = httpClient.get(urlString = getRequestURL("loginqr"))
+                  val imageByteArray: ByteArray = httpClient.get(urlString = getRequestURL("loginqr")).body()
                   imageBitmap = byteArrayToImageBitmap(imageByteArray)
                   imageLoading = false
                   delay(30000L)

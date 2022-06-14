@@ -2,12 +2,12 @@ package me.ftmc.common.backend
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
-import io.ktor.client.call.receive
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Parameters
+import io.ktor.serialization.kotlinx.json.json
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -48,8 +48,11 @@ class APIError(val errorType: APIErrorType) : RuntimeException(errorType.msg) {
 }
 
 val httpClient = HttpClient {
-  install(JsonFeature) {
-    serializer = KotlinxSerializer()
+  install(ContentNegotiation) {
+    json(Json {
+      prettyPrint = true
+      ignoreUnknownKeys = true
+    })
   }
 }
 
@@ -75,7 +78,7 @@ suspend inline fun <reified T> httpCmd(cmd: String, extraParameters: Map<String,
     })
     logger.info("[httpCmd] HTTP响应成功")
     try {
-      val resultObject: T = httpResponse.receive()
+      val resultObject: T = httpResponse.body()
       if (resultObject is StringDataResponse) {
         if (resultObject.code != 0) {
           throw APIError(resultObject.code)
@@ -84,7 +87,7 @@ suspend inline fun <reified T> httpCmd(cmd: String, extraParameters: Map<String,
       return resultObject
     } catch (_: NoTransformationFoundException) {
       logger.warn("[httpCmd] 解析失败，尝试解析错误信息")
-      val errorResponse: String = httpResponse.receive()
+      val errorResponse: String = httpResponse.body()
       val apiErrorObject = Json.decodeFromString<StringDataResponse>(errorResponse)
       logger.debug("[httpCmd] 错误信息解析成功")
       throw APIError(apiErrorObject.code)
